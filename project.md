@@ -48,6 +48,10 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - Post occupies x 1526 to 1616 mm from the left and y 2250 to 2340 mm from the top.
   - Clearances: 20 mm to joist 6 (above), 20 mm to joist 6a (below), 213 mm to the right bearer, 566.5 mm to the centre bearer.
   - The post sits between joists 6 and 6a.
+- **Deck posts:** 9 posts, 90 x 90 mm (assumed size), three under each bearer.
+  - Along the length: centres at 45, 1500 and 2955 mm from the top, so the bearers span 1455 mm between post centres. This span is not yet checked against AS 1684.
+  - Across the width: centres at 45, 937 and 1829 mm from the left. Edge posts are kept flush inside the deck outline rather than centred on the edge bearers.
+  - Height, footings and stirrups are still open.
 - **Decking boards** run towards the steps. Whether to add a boards-at-90-degrees edge for the step is a step-stage decision still to be made.
 
 ### 3.2 Posts, footings and treatment
@@ -66,19 +70,19 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 - Top view on the left. Side view on the right, looking from the right-hand edge with up to the left, so joist ends are nearest the top view and the bearer is beyond.
 - Both views share the vertical scale so the joist rows align.
-- Nothing in the drawing is configurable unless the owner asks. The only toggles are Joists, Bearers and Structural post.
+- Nothing in the drawing is configurable unless the owner asks. The only toggles are Joists, Bearers, Deck posts and Structural post.
 - No inputs and no layers for joist numbers, dimensions or bearer lines.
 
 ## 4. The interactive drawing
 
 An interactive SVG page was built and published as a private artifact (Version 6). Its source is a single HTML file with a JavaScript IIFE that generates the SVG.
 
-- **Features:** top and side views, show/hide toggles (Joists, Bearers, Structural post), hover/tap/focus readouts for joists, bearers and the post, summary chips, light and dark themes, IBM Plex fonts, aria labels.
+- **Features:** top and side views, show/hide toggles (Joists, Bearers, Deck posts, Structural post), hover/tap/focus readouts for joists, bearers, deck posts and the structural post, summary chips, light and dark themes, IBM Plex fonts, aria labels.
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0] };
-var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 856, GUIDE_SPAN = 1000;
+var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3 };
+var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 900, GUIDE_SPAN = 1000;
 ```
 
 - **Layout maths:**

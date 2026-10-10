@@ -2,7 +2,7 @@
 <title>Deck Joist Layout</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: a drawing-sheet page. Key figures first, then one sheet with the top view (joists running left to right over the bearers) and the side view to its right, sharing one vertical scale so every joist lines up with its row. Only the joist and bearer toggles are configurable. */
+/* Layout: a drawing-sheet page. Key figures first, then one sheet with the top view (joists running left to right over the bearers) and the side view to its right, sharing one vertical scale so every joist lines up with its row. Only the joist, bearer, deck post and structural post toggles are configurable. */
 :root {
   --bg: #EEF1F4;
   --panel: #FFFFFF;
@@ -19,6 +19,9 @@
   --post: #3E4B59;
   --post-edge: #151C24;
   --post-hi: #5F7186;
+  --dpost: #6F8F4E;
+  --dpost-edge: #3B5226;
+  --dpost-hi: #93B56E;
   --guide: #2B6CA3;
   --ok: #1E7A4C;
   --ok-bg: #E1F2E8;
@@ -44,6 +47,9 @@
     --post: #8493A3;
     --post-edge: #D8E0E8;
     --post-hi: #A9B7C6;
+    --dpost: #7FA05A;
+    --dpost-edge: #CFE3B5;
+    --dpost-hi: #A5C77E;
     --guide: #7DB3E0;
     --ok: #6CCB97;
     --ok-bg: #16301F;
@@ -68,6 +74,9 @@
   --post: #8493A3;
   --post-edge: #D8E0E8;
   --post-hi: #A9B7C6;
+  --dpost: #7FA05A;
+  --dpost-edge: #CFE3B5;
+  --dpost-hi: #A5C77E;
   --guide: #7DB3E0;
   --ok: #6CCB97;
   --ok-bg: #16301F;
@@ -107,10 +116,11 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .sw.j { background: var(--timber); border: 1px solid var(--timber-edge); }
 .sw.b { background: var(--bearer); border: 1px solid var(--bearer-edge); }
 .sw.p { background: var(--post); border: 1px solid var(--post-edge); }
+.sw.d { background: var(--dpost); border: 1px dashed var(--dpost-edge); }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 figcaption { font-size: 13px; color: var(--muted); max-width: 80ch; }
 .scroller { overflow-x: auto; }
-svg { display: block; width: 100%; min-width: 760px; max-width: 856px; height: auto; margin-inline: auto; color: var(--ink); }
+svg { display: block; width: 100%; min-width: 800px; max-width: 900px; height: auto; margin-inline: auto; color: var(--ink); }
 svg text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
 svg .num { fill: var(--ink); font-weight: 500; }
 svg .dim line { stroke: var(--guide); stroke-width: 1; }
@@ -123,14 +133,19 @@ svg .post rect { fill: var(--post); stroke: var(--post-edge); stroke-width: 1; t
 svg .post rect.open { stroke: none; }
 svg .post line.edge { stroke: var(--post-edge); stroke-width: 1; }
 svg .post line.brk { stroke: var(--post-edge); stroke-width: 1; stroke-dasharray: 3 2; }
-svg .joist, svg .bearer, svg .post { cursor: pointer; }
+svg .dpost rect { fill: var(--dpost); fill-opacity: 0.6; stroke: var(--dpost-edge); stroke-width: 1; stroke-dasharray: 3 2; transition: fill 0.12s; }
+svg .dpost rect.open { stroke: none; fill-opacity: 1; }
+svg .dpost line.edge { stroke: var(--dpost-edge); stroke-width: 1; }
+svg .dpost line.brk { stroke: var(--dpost-edge); stroke-width: 1; stroke-dasharray: 3 2; }
+svg .dpost.on rect, svg .dpost:hover rect { fill: var(--dpost-hi); fill-opacity: 1; }
+svg .joist, svg .bearer, svg .post, svg .dpost { cursor: pointer; }
 svg .joist.on rect, svg .joist:hover rect { fill: var(--timber-hi); stroke-width: 1.75; }
 svg .bearer.on rect, svg .bearer:hover rect { fill: var(--bearer-hi); stroke-width: 1.75; }
 svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
-.joist:focus-visible, .bearer:focus-visible, .post:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
+.joist:focus-visible, .bearer:focus-visible, .post:focus-visible, .dpost:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
 .readout { margin: 0; min-height: 3.1em; font: 14px/1.55 var(--mono); color: var(--ink); }
 .note { margin: 0; font-size: 13px; color: var(--muted); max-width: 80ch; }
-@media (prefers-reduced-motion: reduce) { svg .joist rect, svg .bearer rect, svg .post rect { transition: none; } }
+@media (prefers-reduced-motion: reduce) { svg .joist rect, svg .bearer rect, svg .post rect, svg .dpost rect { transition: none; } }
 </style>
 
 <main class="wrap">
@@ -147,6 +162,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       <h2 id="sheet-h">Top view and side view</h2>
       <label class="toggle"><input type="checkbox" id="t-j" checked><span>Joists<i class="sw j"></i></span></label>
       <label class="toggle"><input type="checkbox" id="t-b" checked><span>Bearers<i class="sw b"></i></span></label>
+      <label class="toggle"><input type="checkbox" id="t-d" checked><span>Deck posts<i class="sw d"></i></span></label>
       <label class="toggle"><input type="checkbox" id="t-p" checked><span>Structural post<i class="sw p"></i></span></label>
     </div>
     <figure>
@@ -156,14 +172,14 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     <p class="readout" id="readout" aria-live="polite"></p>
   </section>
 
-  <p class="note">Layout rules follow Bunnings community guidance: joists at 450 mm centres or closer, and a 90 x 45 mm joist spanning about 1,000 mm between supports. These are not AS 1684 span tables. The bearer size of 140 x 45 mm on edge is an assumption, taken from a community example. The post position is measured to its nearest faces, and its height is not set yet. Confirm sizes, spans and footings with your certifier or engineer. Deck posts and footings are not drawn yet.</p>
+  <p class="note">Layout rules follow Bunnings community guidance: joists at 450 mm centres or closer, and a 90 x 45 mm joist spanning about 1,000 mm between supports. These are not AS 1684 span tables. The bearer size of 140 x 45 mm on edge is an assumption, taken from a community example. The structural post position is measured to its nearest faces, and its height is not set yet. The deck posts are an assumed 90 x 90 mm, three under each bearer, shown dashed in the top view because they sit below the frame. Distances between deck posts are centre to centre. Their size, spacing and height are not confirmed, and footings are not drawn yet. Confirm sizes, spans and footings with your certifier or engineer.</p>
 </main>
 
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0] };
-  var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 856, GUIDE_SPAN = 1000;
+  var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3 };
+  var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 900, GUIDE_SPAN = 1000;
   var sel = null;
 
   function fmt(v) {
@@ -195,13 +211,18 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     var mc = 0;
     for (i = 1; i < fs.length; i++) mc = Math.max(mc, fs[i] - fs[i - 1]);
     var postX = p.W - p.pr - p.ps;
+    /* deck posts under each bearer, kept inside the deck outline */
+    var dp = [], q;
+    for (j = 0; j < p.nb; j++) for (q = 0; q < p.npp; q++) {
+      dp.push({ j: j, r: q, x: Math.min(Math.max(ys[j], p.dps / 2), p.W - p.dps / 2), y: p.dps / 2 + q * (p.L - p.dps) / (p.npp - 1) });
+    }
     /* short joist below the post, from the central bearer to the right edge */
     var ex = { y: p.pt + p.ps + p.pg + p.t / 2, x0: ys[(p.nb - 1) >> 1] - p.bt / 2, x1: p.W, name: (k + 1) + 'a' };
     var nearJ = gap(ex.y - p.t / 2, ex.y + p.t / 2, p.pt, p.pt + p.ps), nearB = Infinity;
     var between = 'joists ' + (k + 1) + ' and ' + ex.name;
     for (i = 0; i <= n; i++) nearJ = Math.min(nearJ, gap(xs[i] - p.t / 2 + Math.min(ds[i], 0), xs[i] + p.t / 2 + Math.max(ds[i], 0), p.pt, p.pt + p.ps));
     for (j = 0; j < p.nb; j++) nearB = Math.min(nearB, gap(ys[j] - p.bt / 2, ys[j] + p.bt / 2, postX, postX + p.ps));
-    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
+    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, bs: (p.L - p.dps) / (p.npp - 1), s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
   }
   var m = calc(P);
 
@@ -230,13 +251,17 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     var name = j === 0 ? 'left edge' : (j === P.nb - 1 ? 'right edge' : 'middle');
     return 'Bearer ' + (j + 1) + ' of ' + P.nb + ' (' + name + '): centre ' + fmt(m.ys[j]) + ' mm from the left edge, ' + fmt(P.L) + ' mm long, ' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm on edge (assumed)';
   }
+  function dpostLabel(q) {
+    var d = m.dp[q];
+    return 'Deck post ' + (q + 1) + ' of ' + m.dp.length + ': ' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed) under bearer ' + (d.j + 1) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top. Height and footing are not set yet';
+  }
   function postLabel() {
     return 'Structural post, ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm: ' + fmt(P.pt) + ' mm from the top and ' + fmt(P.pr) + ' mm from the right edge, measured to its nearest faces. Nearest joist ' + fmt(m.nearJ) + ' mm away, nearest bearer ' + fmt(m.nearB) + ' mm away';
   }
 
   function drawSheet() {
-    var showJ = $('t-j').checked, showB = $('t-b').checked, showP = $('t-p').checked;
-    var w = P.W * K, h = P.L * K, dpx = P.d * K, bdpx = P.bd * K, vbH = Math.round(OY + h + 66);
+    var showJ = $('t-j').checked, showB = $('t-b').checked, showP = $('t-p').checked, showD = $('t-d').checked;
+    var w = P.W * K, h = P.L * K, dpx = P.d * K, bdpx = P.bd * K, vbH = Math.round(OY + h + (showD ? 92 : 66));
     var ppx = OX + m.postX * K, ppy = OY + P.pt * K, psz = P.ps * K;
     var sideL = SX - 30, sideR = SX + dpx + bdpx + 30;
     var postOn = (sel && sel.k === 'p') ? ' on' : '';
@@ -301,6 +326,33 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       o += '<text x="' + r1(SX + dpx) + '" y="' + r1(OY + h + 28) + '">Bearer</text>';
     }
 
+    /* deck posts sit below the frame: dashed in the top view, stubs below the bearer in the side view */
+    if (showD) {
+      var dsz = P.dps * K, sdx = SX + dpx + bdpx;
+      for (i = 0; i < m.dp.length; i++) {
+        var d = m.dp[i];
+        o += '<g class="dpost' + (sel && sel.k === 'd' && sel.i === i ? ' on' : '') + '" data-q="' + i + '" tabindex="0" role="img" aria-label="' + dpostLabel(i) + '"><title>' + dpostLabel(i) + '</title>' +
+          '<rect x="' + r1(OX + (d.x - P.dps / 2) * K) + '" y="' + r1(OY + (d.y - P.dps / 2) * K) + '" width="' + r1(dsz) + '" height="' + r1(dsz) + '"/></g>';
+      }
+      for (i = 0; i < P.npp; i++) {
+        var sy = OY + (m.dp[i].y - P.dps / 2) * K;
+        o += '<g class="dpost' + (sel && sel.k === 'd' && sel.i % P.npp === i ? ' on' : '') + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side. Its height is not set yet.</title>' +
+          '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="30" height="' + r1(dsz) + '"/>' +
+          '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy) + '"/>' +
+          '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz) + '"/>' +
+          '<line class="brk" x1="' + r1(sdx + 30) + '" y1="' + r1(sy - 3) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz + 3) + '"/></g>';
+      }
+      o += '<text x="' + r1(sdx + 30) + '" y="' + r1(OY + h + 42) + '" text-anchor="end">Deck post</text>';
+      /* post centre-to-centre distances: across the width below the top view, along the length beside the side view */
+      for (j = 1; j < P.nb; j++) {
+        var pa = m.dp[(j - 1) * P.npp], pb = m.dp[j * P.npp];
+        o += dimH(r1(OX + pa.x * K), r1(OX + pb.x * K), r1(OY + h + 64), fmt(pb.x - pa.x), true);
+      }
+      for (i = 1; i < P.npp; i++) {
+        o += dimV(r1(sdx + 76), r1(OY + m.dp[i - 1].y * K), r1(OY + m.dp[i].y * K), fmt(m.dp[i].y - m.dp[i - 1].y));
+      }
+    }
+
     o += dimH(OX, r1(OX + w), r1(OY + h + 34), fmt(P.W), true);
     o += dimV(OX - 78, OY, r1(OY + h), fmt(P.L));
 
@@ -330,7 +382,8 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       '<div class="chip"><span class="k">Joist span</span><span class="v">' + fmt(m.s) + '<small>mm</small></span><span class="s">between bearer centres</span>' +
         '<span class="pill ' + (spanOk ? 'ok' : 'warn') + '">' + (spanOk ? 'Within the ~1,000 mm guide' : 'Over the ~1,000 mm guide') + '</span></div>' +
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
-        '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>';
+        '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>' +
+      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' per bearer, ' + fmt(m.bs) + ' mm centres</span></div>';
     $('lede').textContent = (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres, ' + fmt(P.W) + ' mm long, sitting on ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length of the deck. The ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it.';
     $('sheet-cap').textContent = 'Left, looking down on the frame: the joists run left to right across the ' + fmt(P.W) + ' mm width and sit on top of the bearers. Where a joist crosses a bearer you see the joist, so the bearers show in the gaps between. Right, looking from the right-hand edge with up to the left: you see the ' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm joist ends on top of the ' + fmt(P.bd) + ' mm deep bearer, each level with its row in the top view. The post runs through the frame between ' + m.between + ', behind the bearer in the side view, and continues above and below because its height is not set yet.';
   }
@@ -346,8 +399,12 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .post'), function (g) {
       g.classList.toggle('on', !!sel && sel.k === 'p');
     });
-    var text = 'Hover, tap or tab to a joist, bearer or the post to read its position.';
-    if (sel) text = (sel.k === 'j' ? joistLabel(sel.i) : (sel.k === 'b' ? bearerLabel(sel.i) : postLabel())) + '.';
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
+      var hit = g.hasAttribute('data-r') ? sel && sel.i % P.npp === parseInt(g.getAttribute('data-r'), 10) : sel && sel.i === parseInt(g.getAttribute('data-q'), 10);
+      g.classList.toggle('on', !!sel && sel.k === 'd' && !!hit);
+    });
+    var text = 'Hover, tap or tab to a joist, bearer or post to read its position.';
+    if (sel) text = (sel.k === 'j' ? joistLabel(sel.i) : (sel.k === 'b' ? bearerLabel(sel.i) : (sel.k === 'd' ? dpostLabel(sel.i) : postLabel()))) + '.';
     $('readout').textContent = text;
   }
 
@@ -370,6 +427,10 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .post'), function (g) {
       bind(g, function () { return { k: 'p', i: 0 }; });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
+      var i = g.hasAttribute('data-r') ? (P.nb - 1) * P.npp + parseInt(g.getAttribute('data-r'), 10) : parseInt(g.getAttribute('data-q'), 10);
+      bind(g, function () { return { k: 'd', i: i }; });
+    });
   }
 
   function render() {
@@ -383,6 +444,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   $('t-j').addEventListener('change', render);
   $('t-b').addEventListener('change', render);
   $('t-p').addEventListener('change', render);
+  $('t-d').addEventListener('change', render);
   drawText();
   render();
 })();
