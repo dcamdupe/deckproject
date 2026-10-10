@@ -34,17 +34,20 @@ A planning and design record for a low-level timber deck beside a house. It capt
 ### 3.1 Framing and layout
 
 - **Joists:** 90 x 45 mm at no more than 450 mm centres.
-  - 3000 mm length, 45 mm thick: 7 bays, so 8 joists at 422.14 mm centres.
-  - Joist centre positions: 22.5, 444.6, 866.8, 1288.9, 1711.1, 2133.2, 2555.4 and 2977.5 mm.
+  - 8 full-length joists plus one short joist (6a) beside the structural post.
+  - Joist centre positions: 22.5, 495.5, 923.5, 1351.5, 1779.5, 2207.5, 2555.4 and 2977.5 mm.
+  - Joist 6 is set 20 mm clear of the post's top face. Joists 2 to 5 are spread evenly between the joist 1 doubler and joist 6: 383 mm clear gaps, 428 mm centres.
+  - Joists 7 and 8 stay on the original 422.14 mm grid. Joist 6 to 7 is 347.9 mm centres.
+  - Joist 6a is a short joist 20 mm clear of the post's bottom face (centre 2382.5 mm), running from the central bearer to the right edge, 959.5 mm long.
   - Joist 1 is a double joist: a second 90 x 45 mm member fixed against its inward face (occupying 45 to 90 mm), so 9 joist lengths in total. No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed size), under the joists.
   - Bearer centres: 22.5, 937 and 1851.5 mm, about 914.5 mm apart.
   - This is within the roughly 1000 mm span guide for a 90 x 45 mm joist.
 - **Joists sit on top of the bearers** and are continuous. The earlier plan of bearers beside the joists was dropped.
-- **Structural post:** The post is not moved to suit the framing, and no joist or bearer moves for it. The owner chose to place the post and lay out the framing around it.
+- **Structural post:** The post is not moved to suit the framing. The joists are laid out around it (joist 6 and short joist 6a sit 20 mm either side); no bearer moves.
   - Post occupies x 1526 to 1616 mm from the left and y 2250 to 2340 mm from the top.
-  - Clearances: 94.3 mm to joist 6 (above), 192.9 mm to joist 7 (below), 213 mm to the right bearer, 566.5 mm to the centre bearer.
-  - The post sits between joists 6 and 7.
+  - Clearances: 20 mm to joist 6 (above), 20 mm to joist 6a (below), 213 mm to the right bearer, 566.5 mm to the centre bearer.
+  - The post sits between joists 6 and 6a.
 - **Decking boards** run towards the steps. Whether to add a boards-at-90-degrees edge for the step is a step-stage decision still to be made.
 
 ### 3.2 Posts, footings and treatment
@@ -74,12 +77,12 @@ An interactive SVG page was built and published as a private artifact (Version 6
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, dbl: [0] };
+var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0] };
 var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 856, GUIDE_SPAN = 1000;
 ```
 
 - **Layout maths:**
-  - Joist bays: `n = ceil((L - t) / maxC)`, centres `c = (L - t) / n`.
+  - Joist grid: `n = ceil((L - t) / maxC)`, centres `c = (L - t) / n`. The last grid joist above the post is then moved to `pg` clear of it, and the joists before it are spaced with equal clear gaps.
   - Bearer spacing: `s = (W - bt) / (nb - 1)`.
   - Post left edge: `postX = W - pr - ps = 1526`.
 - **Not yet checked:** the rendered page has never been inspected visually. Its script passed a syntax check only.

@@ -162,7 +162,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, dbl: [0] };
+  var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0] };
   var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 856, GUIDE_SPAN = 1000;
   var sel = null;
 
@@ -182,14 +182,26 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     for (j = 0; j < p.nb; j++) ys.push(p.bt / 2 + j * s);
     /* doubled joists get a second member on the inward side */
     var ds = xs.map(function (x, k) { return p.dbl.indexOf(k) < 0 ? 0 : (k === n ? -p.t : p.t); });
+    /* last joist above the post moves to pg clear of it; those before it share the space evenly */
+    var k = 0;
+    for (i = 0; i <= n; i++) if (xs[i] + p.t / 2 <= p.pt - p.pg) k = i;
+    xs[k] = p.pt - p.pg - p.t / 2;
+    var a = p.t + Math.max(ds[0], 0), g = (xs[k] - p.t / 2 - a - (k - 1) * p.t) / k;
+    for (i = 1; i < k; i++) xs[i] = a + i * g + (i - 1) * p.t + p.t / 2;
+    /* full-length member centres, used for spacing checks and dimensions */
+    var fs = [];
+    for (i = 0; i <= n; i++) { fs.push(xs[i]); if (ds[i]) fs.push(xs[i] + ds[i]); }
+    fs.sort(function (u, v) { return u - v; });
+    var mc = 0;
+    for (i = 1; i < fs.length; i++) mc = Math.max(mc, fs[i] - fs[i - 1]);
     var postX = p.W - p.pr - p.ps;
-    var nearJ = Infinity, nearB = Infinity, between = '';
+    /* short joist below the post, from the central bearer to the right edge */
+    var ex = { y: p.pt + p.ps + p.pg + p.t / 2, x0: ys[(p.nb - 1) >> 1] - p.bt / 2, x1: p.W, name: (k + 1) + 'a' };
+    var nearJ = gap(ex.y - p.t / 2, ex.y + p.t / 2, p.pt, p.pt + p.ps), nearB = Infinity;
+    var between = 'joists ' + (k + 1) + ' and ' + ex.name;
     for (i = 0; i <= n; i++) nearJ = Math.min(nearJ, gap(xs[i] - p.t / 2 + Math.min(ds[i], 0), xs[i] + p.t / 2 + Math.max(ds[i], 0), p.pt, p.pt + p.ps));
     for (j = 0; j < p.nb; j++) nearB = Math.min(nearB, gap(ys[j] - p.bt / 2, ys[j] + p.bt / 2, postX, postX + p.ps));
-    for (i = 0; i < n; i++) {
-      if (xs[i] < p.pt + p.ps / 2 && p.pt + p.ps / 2 < xs[i + 1]) between = 'joists ' + (i + 1) + ' and ' + (i + 2);
-    }
-    return { n: n, c: c, xs: xs, ds: ds, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
+    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
   }
   var m = calc(P);
 
@@ -207,6 +219,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   }
 
   function joistLabel(i) {
+    if (i > m.n) return 'Joist ' + m.ex.name + ' (short joist beside the post): centre ' + fmt(m.ex.y) + ' mm from the end, ' + fmt(m.ex.x1 - m.ex.x0) + ' mm long, from the central bearer to the right edge, ' + fmt(P.pg) + ' mm clear of the post';
     var tags = [];
     if (i === 0 || i === m.n) tags.push('end joist');
     if (m.ds[i]) tags.push('double, 2 x ' + fmt(P.t) + ' mm side by side');
@@ -265,11 +278,16 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
           (m.ds[i] ? '<rect x="' + OX + '" y="' + r1(jy + m.ds[i] * K) + '" width="' + r1(w) + '" height="' + r1(P.t * K) + '"/>' +
           '<rect x="' + SX + '" y="' + r1(jy + m.ds[i] * K) + '" width="' + r1(dpx) + '" height="' + r1(P.t * K) + '"/>' : '') + '</g>';
       }
+      var ey = OY + (m.ex.y - P.t / 2) * K;
+      o += '<g class="joist' + (sel && sel.k === 'j' && sel.i === m.n + 1 ? ' on' : '') + '" data-i="' + (m.n + 1) + '" tabindex="0" role="img" aria-label="' + joistLabel(m.n + 1) + '"><title>' + joistLabel(m.n + 1) + '</title>' +
+        '<rect x="' + r1(OX + m.ex.x0 * K) + '" y="' + r1(ey) + '" width="' + r1((m.ex.x1 - m.ex.x0) * K) + '" height="' + r1(P.t * K) + '"/>' +
+        '<rect x="' + SX + '" y="' + r1(ey) + '" width="' + r1(dpx) + '" height="' + r1(P.t * K) + '"/></g>';
+      o += '<text class="num" x="' + r1(OX + w + 10) + '" y="' + r1(OY + m.ex.y * K) + '" dominant-baseline="central">' + m.ex.name + '</text>';
       for (i = 0; i <= m.n; i++) {
         o += '<text class="num" x="' + r1(OX + w + 10) + '" y="' + r1(OY + m.xs[i] * K) + '" dominant-baseline="central">' + (i + 1) + (m.ds[i] ? ' x2' : '') + '</text>';
       }
-      for (i = 0; i < m.n; i++) {
-        o += dimV(OX - 26, r1(OY + m.xs[i] * K), r1(OY + m.xs[i + 1] * K), fmt(m.c));
+      for (i = 1; i < m.fs.length; i++) {
+        if (m.fs[i] - m.fs[i - 1] > P.t * 1.5) o += dimV(OX - 26, r1(OY + m.fs[i - 1] * K), r1(OY + m.fs[i] * K), fmt(m.fs[i] - m.fs[i - 1]));
       }
       o += dimH(SX, r1(SX + dpx), OY - 34, fmt(P.d));
       o += '<text x="' + SX + '" y="' + r1(OY + h + 14) + '">Joist</text>';
@@ -289,31 +307,31 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     /* structural post in the top view, drawn last so it sits on top */
     if (showP) o += '<g class="post' + postOn + '" data-top="1" tabindex="0" role="img" aria-label="' + postLabel() + '"><title>' + postLabel() + '</title>' +
       '<rect x="' + r1(ppx) + '" y="' + r1(ppy) + '" width="' + r1(psz) + '" height="' + r1(psz) + '"/></g>';
-    if (showP) o += '<text x="' + r1(ppx + psz + 6) + '" y="' + r1(ppy + psz / 2) + '" dominant-baseline="central">Post</text>';
+    if (showP) o += '<text x="' + r1(ppx - 6) + '" y="' + r1(ppy + psz / 2) + '" text-anchor="end" dominant-baseline="central">Post</text>';
     if (showP) o += '<line class="ext" x1="' + (OX - 130) + '" y1="' + r1(ppy) + '" x2="' + r1(ppx) + '" y2="' + r1(ppy) + '"/>';
     if (showP) o += dimV(OX - 126, OY, r1(ppy), fmt(P.pt));
-    if (showP) o += dimH(r1(ppx + psz), r1(OX + w), r1(ppy + psz + 60 * K), fmt(P.pr));
+    if (showP) o += dimH(r1(ppx + psz), r1(OX + w), r1(ppy + psz / 2), fmt(P.pr));
 
     var svg = $('sheet');
     svg.setAttribute('viewBox', '0 0 ' + VBW + ' ' + vbH);
-    svg.setAttribute('aria-label', 'Top view with the side view to its right: ' + (m.n + 1) + ' joists running left to right over ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length, with a ' + fmt(P.ps) + ' mm square structural post in the gap between ' + m.between + '.');
+    svg.setAttribute('aria-label', 'Top view with the side view to its right: ' + (m.n + 1) + ' joists and one short joist running left to right over ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length, with a ' + fmt(P.ps) + ' mm square structural post in the gap between ' + m.between + '.');
     svg.innerHTML = o;
   }
 
   function drawText() {
-    var centresOk = m.c <= P.maxC + 1e-9;
+    var centresOk = m.mc <= P.maxC + 1e-9;
     var spanOk = m.s <= GUIDE_SPAN;
     var postOk = m.nearJ > 0 && m.nearB > 0;
     $('chips').innerHTML =
-      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long' + (P.dbl.length ? ', joist ' + P.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled' : '') + '</span></div>' +
-      '<div class="chip"><span class="k">Joist centres</span><span class="v">' + fmt(m.c) + '<small>mm</small></span><span class="s">clear gap ' + fmt(m.c - P.t) + ' mm</span>' +
+      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long' + (P.dbl.length ? ', joist ' + P.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled' : '') + ', plus short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
+      '<div class="chip"><span class="k">Max joist centres</span><span class="v">' + fmt(m.mc) + '<small>mm</small></span><span class="s">clear gap up to ' + fmt(m.mc - P.t) + ' mm</span>' +
         '<span class="pill ' + (centresOk ? 'ok' : 'warn') + '">' + (centresOk ? 'Within ' + fmt(P.maxC) + ' mm max' : 'Over ' + fmt(P.maxC) + ' mm max') + '</span></div>' +
       '<div class="chip"><span class="k">Bearers</span><span class="v">' + P.nb + '</span><span class="s">' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm (assumed), ' + fmt(P.L) + ' mm long</span></div>' +
       '<div class="chip"><span class="k">Joist span</span><span class="v">' + fmt(m.s) + '<small>mm</small></span><span class="s">between bearer centres</span>' +
         '<span class="pill ' + (spanOk ? 'ok' : 'warn') + '">' + (spanOk ? 'Within the ~1,000 mm guide' : 'Over the ~1,000 mm guide') + '</span></div>' +
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
         '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>';
-    $('lede').textContent = (m.n + 1) + ' joists at ' + fmt(m.c) + ' mm centres, ' + fmt(P.W) + ' mm long, sitting on ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length of the deck. The ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands in the gap between ' + m.between + '.';
+    $('lede').textContent = (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres, ' + fmt(P.W) + ' mm long, sitting on ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length of the deck. The ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it.';
     $('sheet-cap').textContent = 'Left, looking down on the frame: the joists run left to right across the ' + fmt(P.W) + ' mm width and sit on top of the bearers. Where a joist crosses a bearer you see the joist, so the bearers show in the gaps between. Right, looking from the right-hand edge with up to the left: you see the ' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm joist ends on top of the ' + fmt(P.bd) + ' mm deep bearer, each level with its row in the top view. The post runs through the frame between ' + m.between + ', behind the bearer in the side view, and continues above and below because its height is not set yet.';
   }
 
