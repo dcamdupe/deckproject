@@ -57,6 +57,16 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - The structural post (1526 to 1616 mm from the left) falls entirely within board 12 (1507 to 1642 mm), so only that board needs cutting around it.
 - **Decking boards** run towards the steps. Whether to add a boards-at-90-degrees edge for the step is a step-stage decision still to be made.
 
+### 3.1a Section 2 (step down)
+
+- **Position:** directly below section 1 in the top view, continuing along the length. Same 1874 mm width (assumed), 1810 mm long.
+- **Drop:** 200 mm below section 1, measured between board tops.
+- **Joists:** 5 joists, 90 x 45 mm, at 441.25 mm centres (22.5, 463.75, 905, 1346.25 and 1787.5 mm from the top of the section). No doubled joist.
+- **Bearers:** 3 bearers, 140 x 45 mm (assumed), on the same lines as section 1, 1810 mm long.
+- **Deck posts:** 9 posts, three per bearer, at 45, 905 and 1765 mm along the section, so the bearers span 860 mm. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
+- **Floorboards:** same 14-board layout as section 1, 1810 mm long.
+- **Not yet decided:** the riser or fascia at the step, and whether the two sections share posts at the junction.
+
 ### 3.2 Posts, footings and treatment
 
 - **Stirrups:** Bolt-down or cast-in stirrups are the approach being considered for deck posts, with the stirrup at least 75 mm above finished ground.
@@ -73,6 +83,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 - Top view on the left. Side view on the right, looking from the right-hand edge with up to the left, so joist ends are nearest the top view and the bearer is beyond.
 - Both views share the vertical scale so the joist rows align.
+- Section 2 is drawn below section 1 in the top view, and shifted right by its drop in the side view.
 - Nothing in the drawing is configurable unless the owner asks. The only toggles are Joists, Bearers, Deck posts, Floorboards and Structural post.
 - No inputs and no layers for joist numbers, dimensions or bearer lines.
 
@@ -85,7 +96,9 @@ An interactive SVG page was built and published as a private artifact (Version 6
 
 ```js
 var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
-var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 900, GUIDE_SPAN = 1000;
+/* P2 copies P for section 2 with L: 1810, pt: null (no structural post) and dbl: [] */
+var DROP = 200;
+var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 960, GUIDE_SPAN = 1000;
 ```
 
 - **Layout maths:**
