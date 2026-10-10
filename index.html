@@ -122,7 +122,7 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .sw.j { background: var(--timber); border: 1px solid var(--timber-edge); }
 .sw.b { background: var(--bearer); border: 1px solid var(--bearer-edge); }
 .sw.p { background: var(--post); border: 1px solid var(--post-edge); }
-.sw.d { background: var(--dpost); border: 1px dashed var(--dpost-edge); }
+.sw.d { background: var(--dpost); border: 1px solid var(--dpost-edge); }
 .sw.f { background: var(--board); border: 1px solid var(--board-edge); }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 figcaption { font-size: 13px; color: var(--muted); max-width: 80ch; }
@@ -140,15 +140,15 @@ svg .post rect { fill: var(--post); stroke: var(--post-edge); stroke-width: 1; t
 svg .post rect.open { stroke: none; }
 svg .post line.edge { stroke: var(--post-edge); stroke-width: 1; }
 svg .post line.brk { stroke: var(--post-edge); stroke-width: 1; stroke-dasharray: 3 2; }
-/* boards are see-through and ignore the pointer so the frame below stays readable */
-svg .board { pointer-events: none; }
-svg .board rect { fill: var(--board); fill-opacity: 0.45; stroke: var(--board-edge); stroke-width: 0.75; }
-svg .board rect.solid { fill-opacity: 1; }
-svg .dpost rect { fill: var(--dpost); fill-opacity: 0.6; stroke: var(--dpost-edge); stroke-width: 1; stroke-dasharray: 3 2; transition: fill 0.12s; }
-svg .dpost rect.open { stroke: none; fill-opacity: 1; }
+/* layers are opaque and stacked in build order: posts, bearers, joists, boards */
+svg .board rect { fill: var(--board); stroke: var(--board-edge); stroke-width: 0.75; }
+/* labels that sit over the deck get a panel-coloured halo so they stay readable on the boards */
+svg .halo text { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+svg .dpost rect { fill: var(--dpost); stroke: var(--dpost-edge); stroke-width: 1; transition: fill 0.12s; }
+svg .dpost rect.open { stroke: none; }
 svg .dpost line.edge { stroke: var(--dpost-edge); stroke-width: 1; }
 svg .dpost line.brk { stroke: var(--dpost-edge); stroke-width: 1; stroke-dasharray: 3 2; }
-svg .dpost.on rect, svg .dpost:hover rect { fill: var(--dpost-hi); fill-opacity: 1; }
+svg .dpost.on rect, svg .dpost:hover rect { fill: var(--dpost-hi); }
 svg .joist, svg .bearer, svg .post, svg .dpost { cursor: pointer; }
 svg .joist.on rect, svg .joist:hover rect { fill: var(--timber-hi); stroke-width: 1.75; }
 svg .bearer.on rect, svg .bearer:hover rect { fill: var(--bearer-hi); stroke-width: 1.75; }
@@ -184,7 +184,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     <p class="readout" id="readout" aria-live="polite"></p>
   </section>
 
-  <p class="note">Layout rules follow Bunnings community guidance: joists at 450 mm centres or closer, and a 90 x 45 mm joist spanning about 1,000 mm between supports. These are not AS 1684 span tables. The bearer size of 140 x 45 mm on edge is an assumption, taken from a community example. The structural post position is measured to its nearest faces, and its height is not set yet. The deck posts are an assumed 90 x 90 mm, three under each bearer, shown dashed in the top view because they sit below the frame. Distances between deck posts are centre to centre. Floorboards run the length of the deck, across the joists, and are drawn see-through so the frame shows below them; the last board on the right-hand side is cut down to fit. Their size, spacing and height are not confirmed, and footings are not drawn yet. Section 2 is a 200 mm step down from section 1, with its own bearers, joists and posts. Each section ends in an edge board laid across the step, at 90 degrees to the other boards, with boards on the face of the step below it. The face at the end of section 2 is assumed to be 200 mm high. The edge boards run parallel to the joists, so they and the ends of the lengthwise boards need a joist or blocking under them; that support is not drawn yet. Confirm sizes, spans and footings with your certifier or engineer.</p>
+  <p class="note">Layout rules follow Bunnings community guidance: joists at 450 mm centres or closer, and a 90 x 45 mm joist spanning about 1,000 mm between supports. These are not AS 1684 span tables. The bearer size of 140 x 45 mm on edge is an assumption, taken from a community example. The structural post position is measured to its nearest faces, and its height is not set yet. The deck posts are an assumed 90 x 90 mm, three under each bearer. The layers are drawn solid and stacked in build order, so in the top view the floorboards hide the frame and the bearers and joists hide most of each deck post; use the toggles to see the layers underneath. Distances between deck posts are centre to centre. Floorboards run the length of the deck, across the joists; the last board on the right-hand side is cut down to fit. Their size, spacing and height are not confirmed, and footings are not drawn yet. Section 2 is a 200 mm step down from section 1, with its own bearers, joists and posts. Each section ends in an edge board laid across the step, at 90 degrees to the other boards, with boards on the face of the step below it. The face at the end of section 2 is assumed to be 200 mm high. The edge boards run parallel to the joists, so they and the ends of the lengthwise boards need a joist or blocking under them; that support is not drawn yet. Confirm sizes, spans and footings with your certifier or engineer.</p>
 </main>
 
 <script>
@@ -333,6 +333,27 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       o += '<line class="outline" x1="' + r1(sx - 14) + '" y1="' + r1(oy) + '" x2="' + r1(sdx + 14) + '" y2="' + r1(oy) + '"/>';
       o += '<line class="outline" x1="' + r1(sx - 14) + '" y1="' + r1(oy + h) + '" x2="' + r1(sdx + 14) + '" y2="' + r1(oy + h) + '"/>';
 
+      /* deck posts sit below the frame, so they are drawn first; stubs below the bearer in the side view */
+      if (showD) {
+        for (i = 0; i < mm.dp.length; i++) {
+          var d = mm.dp[i];
+          o += '<g class="dpost' + isOn('d', si, i) + '" data-s="' + si + '" data-q="' + i + '" tabindex="0" role="img" aria-label="' + dpostLabel(si, i) + '"><title>' + dpostLabel(si, i) + '</title>' +
+            '<rect x="' + r1(OX + (d.x - p.dps / 2) * K) + '" y="' + r1(oy + (d.y - p.dps / 2) * K) + '" width="' + r1(dsz) + '" height="' + r1(dsz) + '"/></g>';
+        }
+        for (i = 0; i < p.npp; i++) {
+          var sy = oy + (mm.dp[i].y - p.dps / 2) * K;
+          o += '<g class="dpost' + (sel && sel.k === 'd' && sel.s === si && sel.i % p.npp === i ? ' on' : '') + '" data-s="' + si + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side. Its height is not set yet.</title>' +
+            '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="30" height="' + r1(dsz) + '"/>' +
+            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy) + '"/>' +
+            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz) + '"/>' +
+            '<line class="brk" x1="' + r1(sdx + 30) + '" y1="' + r1(sy - 3) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz + 3) + '"/></g>';
+        }
+        /* post centre-to-centre distances along the length, beside the side view */
+        for (i = 1; i < p.npp; i++) {
+          o += dimV(r1(DX), r1(oy + mm.dp[i - 1].y * K), r1(oy + mm.dp[i].y * K), fmt(mm.dp[i].y - mm.dp[i - 1].y));
+        }
+      }
+
       if (showB) {
         for (j = 0; j < p.nb; j++) {
           var bx = OX + (mm.ys[j] - p.bt / 2) * K;
@@ -363,27 +384,6 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
         }
         for (i = 1; i < mm.fs.length; i++) {
           if (mm.fs[i] - mm.fs[i - 1] > p.t * 1.5) o += dimV(OX - 26, r1(oy + mm.fs[i - 1] * K), r1(oy + mm.fs[i] * K), fmt(mm.fs[i] - mm.fs[i - 1]));
-        }
-      }
-
-      /* deck posts sit below the frame: dashed in the top view, stubs below the bearer in the side view */
-      if (showD) {
-        for (i = 0; i < mm.dp.length; i++) {
-          var d = mm.dp[i];
-          o += '<g class="dpost' + isOn('d', si, i) + '" data-s="' + si + '" data-q="' + i + '" tabindex="0" role="img" aria-label="' + dpostLabel(si, i) + '"><title>' + dpostLabel(si, i) + '</title>' +
-            '<rect x="' + r1(OX + (d.x - p.dps / 2) * K) + '" y="' + r1(oy + (d.y - p.dps / 2) * K) + '" width="' + r1(dsz) + '" height="' + r1(dsz) + '"/></g>';
-        }
-        for (i = 0; i < p.npp; i++) {
-          var sy = oy + (mm.dp[i].y - p.dps / 2) * K;
-          o += '<g class="dpost' + (sel && sel.k === 'd' && sel.s === si && sel.i % p.npp === i ? ' on' : '') + '" data-s="' + si + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side. Its height is not set yet.</title>' +
-            '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="30" height="' + r1(dsz) + '"/>' +
-            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy) + '"/>' +
-            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz) + '"/>' +
-            '<line class="brk" x1="' + r1(sdx + 30) + '" y1="' + r1(sy - 3) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz + 3) + '"/></g>';
-        }
-        /* post centre-to-centre distances along the length, beside the side view */
-        for (i = 1; i < p.npp; i++) {
-          o += dimV(r1(DX), r1(oy + mm.dp[i - 1].y * K), r1(oy + mm.dp[i].y * K), fmt(mm.dp[i].y - mm.dp[i - 1].y));
         }
       }
 
@@ -442,10 +442,10 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     /* structural post in the top view, drawn last so it sits on top */
     if (showP) o += '<g class="post' + postOn + '" data-top="1" tabindex="0" role="img" aria-label="' + postLabel() + '"><title>' + postLabel() + '</title>' +
       '<rect x="' + r1(ppx) + '" y="' + r1(ppy) + '" width="' + r1(psz) + '" height="' + r1(psz) + '"/></g>';
-    if (showP) o += '<text x="' + r1(ppx - 6) + '" y="' + r1(ppy + psz / 2) + '" text-anchor="end" dominant-baseline="central">Post</text>';
+    if (showP) o += '<g class="halo"><text x="' + r1(ppx - 6) + '" y="' + r1(ppy + psz / 2) + '" text-anchor="end" dominant-baseline="central">Post</text></g>';
     if (showP) o += '<line class="ext" x1="' + (OX - 130) + '" y1="' + r1(ppy) + '" x2="' + r1(ppx) + '" y2="' + r1(ppy) + '"/>';
     if (showP) o += dimV(OX - 126, OY, r1(ppy), fmt(P.pt));
-    if (showP) o += dimH(r1(ppx + psz), r1(OX + w), r1(ppy + psz / 2), fmt(P.pr));
+    if (showP) o += '<g class="halo">' + dimH(r1(ppx + psz), r1(OX + w), r1(ppy + psz / 2), fmt(P.pr)) + '</g>';
 
     var svg = $('sheet');
     svg.setAttribute('viewBox', '0 0 ' + VBW + ' ' + vbH);
