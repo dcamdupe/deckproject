@@ -97,7 +97,7 @@ body {
   padding-inline: 16px;
   padding-block: 24px 48px;
 }
-.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
+.wrap { max-width: 1120px; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
 .eyebrow { margin: 0; font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 h1 { margin: 8px 0 6px; font-size: 30px; line-height: 1.15; font-weight: 600; text-wrap: balance; }
 h2 { margin: 0; font-size: 16px; font-weight: 600; }
@@ -126,7 +126,7 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .sw.f { background: var(--board); border: 1px solid var(--board-edge); }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .scroller { overflow-x: auto; }
-svg { display: block; width: 100%; min-width: 860px; max-width: 960px; height: auto; margin-inline: auto; color: var(--ink); }
+svg { display: block; width: 100%; min-width: 900px; max-width: 1040px; height: auto; margin-inline: auto; color: var(--ink); }
 svg text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
 svg .num { fill: var(--ink); font-weight: 500; }
 svg .dim line { stroke: var(--guide); stroke-width: 1; }
@@ -135,6 +135,13 @@ svg .ext { stroke: var(--guide); stroke-width: 0.75; stroke-dasharray: 2 3; opac
 svg .outline { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 5 4; }
 svg .joist rect { fill: var(--timber); stroke: var(--timber-edge); stroke-width: 1; transition: fill 0.12s; }
 svg .bearer rect { fill: var(--bearer); stroke: var(--bearer-edge); stroke-width: 1; transition: fill 0.12s; }
+/* stringers share the joist look; the ledger shares the bearer look; the footing is concrete */
+svg .stringer rect, svg .stringer polygon { fill: var(--timber); stroke: var(--timber-edge); stroke-width: 1; transition: fill 0.12s; }
+svg .stringer { cursor: pointer; }
+svg .stringer.on rect, svg .stringer.on polygon, svg .stringer:hover rect, svg .stringer:hover polygon { fill: var(--timber-hi); stroke-width: 1.75; }
+.stringer:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
+svg .ledger { fill: var(--bearer); stroke: var(--bearer-edge); stroke-width: 1; }
+svg .pad { fill: var(--rule); stroke: var(--muted); stroke-width: 1; }
 svg .post rect { fill: var(--post); stroke: var(--post-edge); stroke-width: 1; transition: fill 0.12s; }
 svg .post rect.open { stroke: none; }
 svg .post line.edge { stroke: var(--post-edge); stroke-width: 1; }
@@ -159,7 +166,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 
 <main class="wrap">
   <header>
-    <p class="eyebrow">Deck build · Sections 1 and 2</p>
+    <p class="eyebrow">Deck build · Sections and steps</p>
     <h1>Joist layout</h1>
     <p class="lede" id="lede"></p>
   </header>
@@ -186,12 +193,15 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
-  /* section 2: a step down, below section 1 in the top view, with no structural post */
-  var P2 = { W: P.W, L: 1810, t: P.t, d: P.d, maxC: P.maxC, nb: P.nb, bt: P.bt, bd: P.bd, ps: P.ps, pt: null, pr: P.pr, pg: P.pg, dbl: [4], dps: P.dps, npp: P.npp, bw: P.bw, bh: P.bh, bg: P.bg };
-  var DROP = 200;
-  /* height of the face at the end of section 2; assumed until the next step is set */
-  var END_RISE = 200;
-  var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 960, GUIDE_SPAN = 1000;
+  /* every step falls FALL; the steps below section 2 each have a going of GOING (two boards) */
+  var FALL = 200, GOING = 272, NSTEPS = 3;
+  function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
+  /* section 2 and the steps have no structural post and a double joist at their bottom edge */
+  var P2 = sub({ L: 1810, pt: null, dbl: [4] });
+  var PS = sub({ L: GOING, pt: null, dbl: [] });
+  /* stringers carry the steps: ns across the width, cut from sd x t stock, fixed to a ledger (ld deep) and landing on a footing */
+  var ST = { ns: 6, sd: 290, ld: 190, pad: 80 };
+  var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
   var sel = null;
 
   function fmt(v) {
@@ -207,6 +217,11 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     while (x < total - 1e-9) { a.push({ x: x, w: Math.min(p.bw, total - x) }); x += p.bw + p.bg; }
     return a;
   }
+
+  /* face boards fill the step face below the board above, down to the next level */
+  function faceBoards(sc) { return strips(sc.rise - sc.p.bh, sc.p); }
+  /* length of a section's lengthwise boards */
+  function boardLen(si) { var p = S[si].p; return p.L - (si > 0 ? p.bh : 0) + p.bh - p.bw - p.bg; }
 
   function calc(p) {
     var n = Math.max(1, Math.ceil((p.L - p.t) / p.maxC - 1e-9));
@@ -235,7 +250,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     /* deck posts under each bearer, kept inside the deck outline */
     var dp = [], q;
     for (j = 0; j < p.nb; j++) for (q = 0; q < p.npp; q++) {
-      dp.push({ j: j, r: q, x: Math.min(Math.max(ys[j], p.dps / 2), p.W - p.dps / 2), y: p.dps / 2 + q * (p.L - p.dps) / (p.npp - 1) });
+      dp.push({ j: j, r: q, x: Math.min(Math.max(ys[j], p.dps / 2), p.W - p.dps / 2), y: p.npp > 1 ? p.dps / 2 + q * (p.L - p.dps) / (p.npp - 1) : p.L / 2 });
     }
     /* floorboards across the width; the last one is cut down to fit */
     var fb = strips(p.W, p);
@@ -248,12 +263,27 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       for (i = 0; i <= n; i++) nearJ = Math.min(nearJ, gap(xs[i] - p.t / 2 + Math.min(ds[i], 0), xs[i] + p.t / 2 + Math.max(ds[i], 0), p.pt, p.pt + p.ps));
       for (j = 0; j < p.nb; j++) nearB = Math.min(nearB, gap(ys[j] - p.bt / 2, ys[j] + p.bt / 2, postX, postX + p.ps));
     }
-    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, fb: fb, bs: (p.L - p.dps) / (p.npp - 1), s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
+    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, fb: fb, bs: p.npp > 1 ? (p.L - p.dps) / (p.npp - 1) : 0, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
   }
   var m = calc(P), m2 = calc(P2);
-  /* off: distance down the top view; drop: how far the section sits below section 1; rise: height of its step face */
-  var S = [{ p: P, m: m, off: 0, drop: 0, rise: DROP }, { p: P2, m: m2, off: P.L, drop: DROP, rise: END_RISE }];
-  var TOTAL = P.L + P2.L;
+  /* off: distance down the top view; drop: how far it sits below section 1; rise: height of its step face */
+  var S = [{ name: 'Section 1', p: P, m: m }, { name: 'Section 2', p: P2, m: m2 }];
+  for (var i0 = 0; i0 < NSTEPS; i0++) S.push({ name: 'Step ' + (i0 + 1), p: PS, m: calc(PS), step: true });
+  var TOTAL = 0;
+  S.forEach(function (sc, si) { sc.off = TOTAL; sc.drop = si * FALL; sc.rise = FALL; TOTAL += sc.p.L; });
+  var GROUND = S.length * FALL;
+  /* stringer geometry, measured as run from the end of section 2 and depth below the board top of section 1 */
+  var SG = (function () {
+    var z0 = S[1].drop, hyp = Math.sqrt(FALL * FALL + GOING * GOING), slope = FALL / GOING;
+    var throat = ST.sd - FALL * GOING / hyp, top = z0 + FALL + P.bh, off = throat * hyp / GOING;
+    var under = function (r) { return top + off + slope * r; };
+    var run = NSTEPS * GOING, foot = (GROUND - top - off) / slope, pts = [[P.t, top]], k;
+    for (k = 1; k <= NSTEPS; k++) { pts.push([k * GOING, z0 + k * FALL + P.bh]); pts.push([k * GOING, k < NSTEPS ? z0 + (k + 1) * FALL + P.bh : GROUND]); }
+    pts.push([foot, GROUND]); pts.push([P.t, under(P.t)]);
+    var c = (P.W - P.t) / (ST.ns - 1), xs = [];
+    for (k = 0; k < ST.ns; k++) xs.push(P.t / 2 + k * c);
+    return { pts: pts, top: top, throat: throat, run: run, foot: foot, c: c, xs: xs };
+  })();
 
   function dimH(x1, x2, y, label, below) {
     return '<g class="dim"><line x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '"/>' +
@@ -268,7 +298,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       (label ? '<text x="' + (x - 7) + '" y="' + ((y1 + y2) / 2) + '" text-anchor="end" dominant-baseline="central">' + label + '</text>' : '') + '</g>';
   }
 
-  function secName(si) { return 'Section ' + (si + 1) + ': '; }
+  function secName(si) { return S[si].name + ': '; }
   function joistLabel(si, i) {
     var p = S[si].p, mm = S[si].m;
     if (i > mm.n) return secName(si) + 'Joist ' + mm.ex.name + ' (short joist beside the post): centre ' + fmt(mm.ex.y) + ' mm from the top of the section, ' + fmt(mm.ex.x1 - mm.ex.x0) + ' mm long, from the central bearer to the right edge, ' + fmt(p.pg) + ' mm clear of the post';
@@ -276,7 +306,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     if (i === 0 || i === mm.n) tags.push('end joist');
     if (mm.ds[i]) tags.push('double, 2 x ' + fmt(p.t) + ' mm side by side');
     var end = tags.length ? ' (' + tags.join(', ') + ')' : '';
-    return secName(si) + 'Joist ' + (i + 1) + ' of ' + (mm.n + 1) + end + ': centre ' + fmt(mm.xs[i]) + ' mm from the top of the section, ' + fmt(p.W) + ' mm long, sitting on ' + p.nb + ' bearers';
+    return secName(si) + 'Joist ' + (i + 1) + ' of ' + (mm.n + 1) + end + ': centre ' + fmt(mm.xs[i]) + ' mm from the top of the section, ' + fmt(p.W) + ' mm long' + ', sitting on ' + p.nb + ' bearers';
   }
   function bearerLabel(si, j) {
     var p = S[si].p, mm = S[si].m;
@@ -287,9 +317,13 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     var p = S[si].p, mm = S[si].m, d = mm.dp[q];
     return secName(si) + 'Deck post ' + (q + 1) + ' of ' + mm.dp.length + ': ' + fmt(p.dps) + ' x ' + fmt(p.dps) + ' mm (assumed) under bearer ' + (d.j + 1) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top of the section. Height and footing are not set yet';
   }
+  function stringerLabel(i) {
+    return 'Stringer ' + (i + 1) + ' of ' + ST.ns + ': centre ' + fmt(SG.xs[i]) + ' mm from the left edge, cut from ' + fmt(ST.sd) + ' x ' + fmt(P.t) + ' mm (assumed) with about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. It runs from the ledger at the end of section 2 down to the footing';
+  }
   function boardLabel(si) {
     var p = S[si].p, mm = S[si].m, last = mm.fb[mm.fb.length - 1];
-    return secName(si) + mm.fb.length + ' floorboards, ' + fmt(p.bw) + ' x ' + fmt(p.bh) + ' mm with ' + fmt(p.bg) + ' mm gaps, running ' + fmt(p.L - p.bw - p.bg) + ' mm along the length' + (last.w < p.bw ? '; the last board on the right is cut to ' + fmt(last.w) + ' mm' : '') + '. One edge board runs across the ' + fmt(p.W) + ' mm width at the step, and ' + strips(S[si].rise, p).length + ' boards cover the ' + fmt(S[si].rise) + ' mm step face';
+    if (S[si].step) return secName(si) + strips(p.L, p).length + ' boards laid across the ' + fmt(p.W) + ' mm width, ' + fmt(p.bw) + ' x ' + fmt(p.bh) + ' mm with a ' + fmt(p.bg) + ' mm gap, and ' + faceBoards(S[si]).length + ' boards on the step face below them';
+    return secName(si) + mm.fb.length + ' floorboards, ' + fmt(p.bw) + ' x ' + fmt(p.bh) + ' mm with ' + fmt(p.bg) + ' mm gaps, running ' + fmt(boardLen(si)) + ' mm along the length' + (last.w < p.bw ? '; the last board on the right is cut to ' + fmt(last.w) + ' mm' : '') + '. One edge board runs across the ' + fmt(p.W) + ' mm width at the step, overhanging the ' + faceBoards(S[si]).length + ' face boards below it';
   }
   function postLabel() {
     return 'Structural post, ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm: ' + fmt(P.pt) + ' mm from the top and ' + fmt(P.pr) + ' mm from the right edge, measured to its nearest faces. Nearest joist ' + fmt(m.nearJ) + ' mm away, nearest bearer ' + fmt(m.nearB) + ' mm away';
@@ -299,10 +333,10 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   function drawSheet() {
     var showJ = $('t-j').checked, showB = $('t-b').checked, showP = $('t-p').checked, showD = $('t-d').checked, showF = $('t-f').checked;
     var w = P.W * K, H = TOTAL * K, dpx = P.d * K, bdpx = P.bd * K, bhpx = P.bh * K, tpx = P.t * K, dsz = P.dps * K;
-    var BY = OY + H + (showF ? 8 : 0), vbH = Math.round(BY + (showD ? 92 : 66));
+    var BY = OY + H + 22, vbH = Math.round(BY + (showD ? 92 : 66));
     var ppx = OX + m.postX * K, ppy = OY + P.pt * K, psz = P.ps * K;
     var sideL = SX - 30, sideR = SX + dpx + bdpx + 30;
-    var DX = SX + dpx + bdpx + DROP * K + 76, LSX = SX + S[S.length - 1].drop * K;
+    var DX = SX + dpx + bdpx + S[1].drop * K + 76, GX = SX - bhpx + GROUND * K;
     var postOn = (sel && sel.k === 'p') ? ' on' : '';
     var o = '', late = '', i, j;
 
@@ -321,7 +355,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     /* each section: oy is its top in the sheet, sx is its side view shifted right by its drop */
     S.forEach(function (sc, si) {
       var p = sc.p, mm = sc.m, oy = OY + sc.off * K, h = p.L * K, sx = SX + sc.drop * K, sdx = sx + dpx + bdpx;
-      var label = 'Section ' + (si + 1) + (sc.drop ? ' · ' + fmt(sc.drop) + ' mm lower' : '');
+      var label = sc.name + (sc.drop && !sc.step ? ' · ' + fmt(sc.drop) + ' mm lower' : '');
       o += '<text class="num" text-anchor="middle" transform="rotate(-90 ' + (OX - 150) + ' ' + r1(oy + h / 2) + ')" x="' + (OX - 150) + '" y="' + r1(oy + h / 2) + '">' + label + '</text>';
 
       o += '<rect class="outline" x="' + OX + '" y="' + r1(oy) + '" width="' + r1(w) + '" height="' + r1(h) + '"/>';
@@ -329,19 +363,20 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       o += '<line class="outline" x1="' + r1(sx - 14) + '" y1="' + r1(oy + h) + '" x2="' + r1(sdx + 14) + '" y2="' + r1(oy + h) + '"/>';
 
       /* deck posts sit below the frame, so they are drawn first; stubs below the bearer in the side view */
-      if (showD) {
+      if (showD && !sc.step) {
         for (i = 0; i < mm.dp.length; i++) {
           var d = mm.dp[i];
           o += '<g class="dpost' + isOn('d', si, i) + '" data-s="' + si + '" data-q="' + i + '" tabindex="0" role="img" aria-label="' + dpostLabel(si, i) + '"><title>' + dpostLabel(si, i) + '</title>' +
             '<rect x="' + r1(OX + (d.x - p.dps / 2) * K) + '" y="' + r1(oy + (d.y - p.dps / 2) * K) + '" width="' + r1(dsz) + '" height="' + r1(dsz) + '"/></g>';
         }
+        var pl = 30;
         for (i = 0; i < p.npp; i++) {
           var sy = oy + (mm.dp[i].y - p.dps / 2) * K;
           o += '<g class="dpost' + (sel && sel.k === 'd' && sel.s === si && sel.i % p.npp === i ? ' on' : '') + '" data-s="' + si + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side. Its height is not set yet.</title>' +
-            '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="30" height="' + r1(dsz) + '"/>' +
-            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy) + '"/>' +
-            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz) + '"/>' +
-            '<line class="brk" x1="' + r1(sdx + 30) + '" y1="' + r1(sy - 3) + '" x2="' + r1(sdx + 30) + '" y2="' + r1(sy + dsz + 3) + '"/></g>';
+            '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="' + r1(pl) + '" height="' + r1(dsz) + '"/>' +
+            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + pl) + '" y2="' + r1(sy) + '"/>' +
+            '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + pl) + '" y2="' + r1(sy + dsz) + '"/>' +
+            '<line class="brk" x1="' + r1(sdx + pl) + '" y1="' + r1(sy - 3) + '" x2="' + r1(sdx + pl) + '" y2="' + r1(sy + dsz + 3) + '"/></g>';
         }
         /* post centre-to-centre distances along the length, beside the side view */
         for (i = 1; i < p.npp; i++) {
@@ -349,18 +384,17 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
         }
       }
 
-      if (showB) {
+      if (showB && !sc.step) {
         for (j = 0; j < p.nb; j++) {
           var bx = OX + (mm.ys[j] - p.bt / 2) * K;
           o += '<g class="bearer' + isOn('b', si, j) + '" data-s="' + si + '" data-j="' + j + '" tabindex="0" role="img" aria-label="' + bearerLabel(si, j) + '"><title>' + bearerLabel(si, j) + '</title>' +
             '<rect x="' + r1(bx) + '" y="' + r1(oy) + '" width="' + r1(p.bt * K) + '" height="' + r1(h) + '"/></g>';
-          if (si === S.length - 1) o += '<text x="' + r1(bx + p.bt * K / 2) + '" y="' + r1(BY + 14) + '" text-anchor="middle">Bearer</text>';
         }
-        o += '<g class="bearer' + isOn('b', si) + '" data-s="' + si + '" data-side="1" role="img" aria-label="Section ' + (si + 1) + ' bearer seen from the side, ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long"><title>Section ' + (si + 1) + ' bearer seen from the side: ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long</title>' +
+        o += '<g class="bearer' + isOn('b', si) + '" data-s="' + si + '" data-side="1" role="img" aria-label="' + sc.name + ' bearer seen from the side, ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long"><title>' + sc.name + ' bearer seen from the side: ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long</title>' +
           '<rect x="' + r1(sx + dpx) + '" y="' + r1(oy) + '" width="' + r1(bdpx) + '" height="' + r1(h) + '"/></g>';
       }
 
-      if (showJ) {
+      if (showJ && !sc.step) {
         for (i = 0; i <= mm.n; i++) {
           var jy = oy + (mm.xs[i] - p.t / 2) * K;
           o += '<g class="joist' + isOn('j', si, i) + '" data-s="' + si + '" data-i="' + i + '" tabindex="0" role="img" aria-label="' + joistLabel(si, i) + '"><title>' + joistLabel(si, i) + '</title>' +
@@ -384,20 +418,29 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 
       /* floorboards lie on top of the joists: over the frame in the top view, left of the joist ends in the side view */
       if (showF) {
-        o += '<g class="board" role="img" aria-label="' + boardLabel(si) + '"><title>' + boardLabel(si) + '</title>';
-        /* lengthwise boards stop short of the edge board that runs across the step */
-        var eb = p.bw * K, lh = h - (p.bw + p.bg) * K, rs = strips(sc.rise, p);
-        for (i = 0; i < mm.fb.length; i++) {
-          o += '<rect x="' + r1(OX + mm.fb[i].x * K) + '" y="' + r1(oy) + '" width="' + r1(mm.fb[i].w * K) + '" height="' + r1(lh) + '"/>';
+        /* boards start clear of the face boards of the step above and overhang their own step by a board thickness, so each face sits below the board above; drawn after all frames */
+        var b0 = oy + (si > 0 ? bhpx : 0), b1 = oy + h + bhpx, eb = p.bw * K;
+        late += '<g class="board" role="img" aria-label="' + boardLabel(si) + '"><title>' + boardLabel(si) + '</title>';
+        if (sc.step) {
+          /* a step is all boards laid across, like the edge boards */
+          strips(p.L, p).forEach(function (b) {
+            late += '<rect x="' + OX + '" y="' + r1(b0 + b.x * K) + '" width="' + r1(w) + '" height="' + r1(b.w * K) + '"/>';
+            late += '<rect x="' + r1(sx - bhpx) + '" y="' + r1(b0 + b.x * K) + '" width="' + r1(bhpx) + '" height="' + r1(b.w * K) + '"/>';
+          });
+        } else {
+          /* lengthwise boards stop short of the edge board that runs across the step */
+          var lh = b1 - eb - p.bg * K - b0;
+          for (i = 0; i < mm.fb.length; i++) {
+            late += '<rect x="' + r1(OX + mm.fb[i].x * K) + '" y="' + r1(b0) + '" width="' + r1(mm.fb[i].w * K) + '" height="' + r1(lh) + '"/>';
+          }
+          late += '<rect x="' + OX + '" y="' + r1(b1 - eb) + '" width="' + r1(w) + '" height="' + r1(eb) + '"/>';
+          late += '<rect x="' + r1(sx - bhpx) + '" y="' + r1(b0) + '" width="' + r1(bhpx) + '" height="' + r1(lh) + '"/>';
+          late += '<rect x="' + r1(sx - bhpx) + '" y="' + r1(b1 - eb) + '" width="' + r1(bhpx) + '" height="' + r1(eb) + '"/>';
         }
-        o += '<rect x="' + OX + '" y="' + r1(oy + h - eb) + '" width="' + r1(w) + '" height="' + r1(eb) + '"/>';
-        o += '<rect class="solid" x="' + r1(sx - bhpx) + '" y="' + r1(oy) + '" width="' + r1(bhpx) + '" height="' + r1(lh) + '"/>';
-        o += '<rect class="solid" x="' + r1(sx - bhpx) + '" y="' + r1(oy + h - eb) + '" width="' + r1(bhpx) + '" height="' + r1(eb) + '"/></g>';
-        /* step face boards: a thin strip from above, stacked down the face in the side view; drawn after all sections */
-        late += '<g class="board" role="img" aria-label="Section ' + (si + 1) + ' step face boards"><rect class="solid" x="' + OX + '" y="' + r1(oy + h) + '" width="' + r1(w) + '" height="' + r1(bhpx) + '"/>';
-        for (i = 0; i < rs.length; i++) {
-          late += '<rect class="solid" x="' + r1(sx - bhpx + rs[i].x * K) + '" y="' + r1(oy + h) + '" width="' + r1(rs[i].w * K) + '" height="' + r1(bhpx) + '"/>';
-        }
+        /* step face boards: hidden from above by the overhang, stacked down the face in the side view */
+        faceBoards(sc).forEach(function (b) {
+          late += '<rect x="' + r1(sx + b.x * K) + '" y="' + r1(oy + h) + '" width="' + r1(b.w * K) + '" height="' + r1(bhpx) + '"/>';
+        });
         late += '</g>';
       }
 
@@ -411,27 +454,45 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       }
     });
 
+    /* steps: footing, ledger and stringers, shown with the joists; run is mapped down the sheet, depth to the right in the side view */
+    if (showJ) {
+      var ry = function (r) { return OY + (S[2].off + r) * K; }, zx = function (z) { return SX - bhpx + z * K; };
+      var padR = SG.foot - 80, padL = SG.run + 60 - padR;
+      o += '<rect class="pad" x="' + OX + '" y="' + r1(ry(padR)) + '" width="' + r1(w) + '" height="' + r1(padL * K) + '"><title>Concrete footing under the stringer feet (size not set)</title></rect>';
+      o += '<rect class="pad" x="' + r1(GX) + '" y="' + r1(ry(padR)) + '" width="' + r1(ST.pad * K) + '" height="' + r1(padL * K) + '"><title>Concrete footing under the stringer feet (size not set)</title></rect>';
+      o += '<rect class="ledger" x="' + OX + '" y="' + r1(ry(0)) + '" width="' + r1(w) + '" height="' + r1(tpx) + '"><title>Ledger across the width, fixed to the end posts of section 2</title></rect>';
+      o += '<rect class="ledger" x="' + r1(zx(SG.top)) + '" y="' + r1(ry(0)) + '" width="' + r1(ST.ld * K) + '" height="' + r1(tpx) + '"><title>Ledger across the width, fixed to the end posts of section 2</title></rect>';
+      for (i = 0; i < ST.ns; i++) {
+        o += '<g class="stringer' + (sel && sel.k === 't' && sel.i === i ? ' on' : '') + '" data-t="' + i + '" tabindex="0" role="img" aria-label="' + stringerLabel(i) + '"><title>' + stringerLabel(i) + '</title>' +
+          '<rect x="' + r1(OX + (SG.xs[i] - P.t / 2) * K) + '" y="' + r1(ry(P.t)) + '" width="' + r1(tpx) + '" height="' + r1((SG.run - P.t) * K) + '"/>' +
+          (i === ST.ns - 1 ? '<polygon points="' + SG.pts.map(function (q) { return r1(zx(q[1])) + ',' + r1(ry(q[0])); }).join(' ') + '"/>' : '') + '</g>';
+      }
+    }
+
     o += late;
+
+    /* ground at the foot of the last step, with the last fall measured to it */
+    var gy = OY + H, lx = SX + S[S.length - 1].drop * K - bhpx;
+    o += '<line class="outline" x1="' + r1(GX) + '" y1="' + r1(OY + S[2].off * K - 20) + '" x2="' + r1(GX) + '" y2="' + r1(gy + 44) + '"/>';
+    o += '<line class="ext" x1="' + r1(lx) + '" y1="' + r1(gy) + '" x2="' + r1(lx) + '" y2="' + r1(gy + 24) + '"/>';
+    o += dimH(r1(lx), r1(GX), r1(gy + 20), fmt(GROUND - S[S.length - 1].drop), true);
+    o += '<text x="' + r1(GX) + '" y="' + r1(gy + 58) + '" text-anchor="end">Ground, ' + fmt(GROUND) + ' mm below section 1</text>';
 
     /* shared dimensions and the side view labels under the last section */
     if (showB) {
       for (j = 0; j < P.nb - 1; j++) o += dimH(r1(OX + m.ys[j] * K), r1(OX + m.ys[j + 1] * K), OY - 34, fmt(m.s));
       o += dimH(r1(SX + dpx), r1(SX + dpx + bdpx), OY - 34, fmt(P.bd));
-      o += '<text x="' + r1(LSX + dpx) + '" y="' + r1(BY + 28) + '">Bearer</text>';
     }
     if (showJ) {
       o += dimH(SX, r1(SX + dpx), OY - 34, fmt(P.d));
-      o += '<text x="' + r1(LSX) + '" y="' + r1(BY + 14) + '">Joist</text>';
     }
     if (showD) {
-      o += '<text x="' + r1(LSX + dpx + bdpx + 30) + '" y="' + r1(BY + 42) + '" text-anchor="end">Deck post</text>';
       /* post centre-to-centre distances across the width, below the top view */
       for (j = 1; j < P.nb; j++) {
         var pa = m.dp[(j - 1) * P.npp], pb = m.dp[j * P.npp];
         o += dimH(r1(OX + pa.x * K), r1(OX + pb.x * K), r1(BY + 64), fmt(pb.x - pa.x), true);
       }
     }
-    if (showF) o += '<text x="' + r1(LSX - bhpx) + '" y="' + r1(BY + 28) + '" text-anchor="end">Boards</text>';
     o += dimH(OX, r1(OX + w), r1(BY + 34), fmt(P.W), true);
 
     /* structural post in the top view, drawn last so it sits on top */
@@ -444,7 +505,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 
     var svg = $('sheet');
     svg.setAttribute('viewBox', '0 0 ' + VBW + ' ' + vbH);
-    svg.setAttribute('aria-label', 'Top view with the side view to its right. Section 1: ' + (m.n + 1) + ' joists and one short joist running left to right over ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length, with a ' + fmt(P.ps) + ' mm square structural post in the gap between ' + m.between + '. Section 2, below it and ' + fmt(DROP) + ' mm lower: ' + (m2.n + 1) + ' joists over ' + P2.nb + ' bearers that run its ' + fmt(P2.L) + ' mm length.');
+    svg.setAttribute('aria-label', 'Top view with the side view to its right. Section 1: ' + (m.n + 1) + ' joists and one short joist running left to right over ' + P.nb + ' bearers that run the ' + fmt(P.L) + ' mm length, with a ' + fmt(P.ps) + ' mm square structural post in the gap between ' + m.between + '. Section 2, below it and ' + fmt(FALL) + ' mm lower: ' + (m2.n + 1) + ' joists over ' + P2.nb + ' bearers that run its ' + fmt(P2.L) + ' mm length. Below that, ' + NSTEPS + ' steps, each ' + fmt(GOING) + ' mm deep and ' + fmt(FALL) + ' mm lower than the last, down to the ground ' + fmt(GROUND) + ' mm below section 1.');
     svg.innerHTML = o;
   }
 
@@ -455,7 +516,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     var postOk = m.nearJ > 0 && m.nearB > 0;
     var cut = m.fb[m.fb.length - 1].w;
     $('chips').innerHTML =
-      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long. ' + S.map(function (sc, si) { return sc.p.dbl.length ? 'Section ' + (si + 1) + ' has joist ' + sc.p.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled. ' : ''; }).join('') + 'Section 1 also has short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
+      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long. ' + S.map(function (sc) { return sc.p.dbl.length && !sc.step ? sc.name + ' has joist ' + sc.p.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled. ' : ''; }).join('') + 'Section 1 also has short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
       '<div class="chip"><span class="k">Max joist centres</span><span class="v">' + fmt(mc) + '<small>mm</small></span><span class="s">section 1 up to ' + fmt(m.mc) + ' mm, section 2 ' + fmt(m2.mc) + ' mm</span>' +
         '<span class="pill ' + (centresOk ? 'ok' : 'warn') + '">' + (centresOk ? 'Within ' + fmt(P.maxC) + ' mm max' : 'Over ' + fmt(P.maxC) + ' mm max') + '</span></div>' +
       '<div class="chip"><span class="k">Bearers</span><span class="v">' + P.nb + ' + ' + P2.nb + '</span><span class="s">' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm (assumed), ' + fmt(P.L) + ' and ' + fmt(P2.L) + ' mm long</span></div>' +
@@ -464,10 +525,13 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
         '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>' +
       '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' per bearer, ' + fmt(m.bs) + ' and ' + fmt(m2.bs) + ' mm centres</span></div>' +
-      '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(P.L - P.bw - P.bg) + ' and ' + fmt(P2.L - P2.bw - P2.bg) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +
-      '<div class="chip"><span class="k">Step boards</span><span class="v">' + S.length + ' + ' + (strips(DROP, P).length + strips(END_RISE, P2).length) + '</span><span class="s">one ' + fmt(P.W) + ' mm edge board across each step, and face boards of ' + strips(DROP, P).map(function (b) { return fmt(b.w); }).join(' and ') + ' mm on each ' + fmt(DROP) + ' mm face</span></div>' +
-      '<div class="chip"><span class="k">Step down</span><span class="v">' + fmt(DROP) + '<small>mm</small></span><span class="s">section 2 (' + fmt(P2.L) + ' mm long) sits below section 1 (' + fmt(P.L) + ' mm long)</span></div>';
-    $('lede').textContent = 'Two sections, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(DROP) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers.';
+      '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(boardLen(0)) + ' and ' + fmt(boardLen(1)) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +
+      '<div class="chip"><span class="k">Steps</span><span class="v">' + NSTEPS + '</span><span class="s">' + fmt(GOING) + ' mm going, ' + strips(GOING, P).length + ' boards laid across each</span></div>' +
+      '<div class="chip"><span class="k">Stringers</span><span class="v">' + ST.ns + '</span><span class="s">' + fmt(ST.sd) + ' x ' + fmt(P.t) + ' mm (assumed) at ' + fmt(SG.c) + ' mm centres, about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. Fixed to a ledger on the end posts of section 2, landing on a concrete footing</span>' +
+        '<span class="pill ' + (SG.c <= P.maxC ? 'ok' : 'warn') + '">' + (SG.c <= P.maxC ? 'Within ' : 'Over ') + fmt(P.maxC) + ' mm max</span></div>' +
+      '<div class="chip"><span class="k">Step face boards</span><span class="v">' + S.length * faceBoards(S[0]).length + '</span><span class="s">' + faceBoards(S[0]).map(function (b) { return fmt(b.w); }).join(' and ') + ' mm boards on each of the ' + S.length + ' step faces, tucked under the board above, which overhangs by ' + fmt(P.bh) + ' mm. Sections 1 and 2 each end in one edge board laid across</span></div>' +
+      '<div class="chip"><span class="k">Total drop</span><span class="v">' + fmt(GROUND) + '<small>mm</small></span><span class="s">' + S.length + ' falls of ' + fmt(FALL) + ' mm from section 1 to the ground</span></div>';
+    $('lede').textContent = 'Two sections and ' + NSTEPS + ' steps, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(FALL) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers. ' + NSTEPS + ' steps on ' + ST.ns + ' stringers then run down to the ground, each with a ' + fmt(GOING) + ' mm going and a ' + fmt(FALL) + ' mm fall, for a total drop of ' + fmt(GROUND) + ' mm.';
   }
 
   function attr(g, name) { return parseInt(g.getAttribute(name), 10); }
@@ -483,11 +547,14 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       g.classList.toggle('on', !!sel && sel.k === 'p');
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
-      var hit = g.hasAttribute('data-r') ? sel && sel.i % P.npp === attr(g, 'data-r') : sel && sel.i === attr(g, 'data-q');
+      var hit = g.hasAttribute('data-r') ? sel && sel.i % S[sel.s].p.npp === attr(g, 'data-r') : sel && sel.i === attr(g, 'data-q');
       g.classList.toggle('on', !!sel && sel.k === 'd' && attr(g, 'data-s') === sel.s && !!hit);
     });
-    var text = 'Hover, tap or tab to a joist, bearer or post to read its position.';
-    if (sel) text = (sel.k === 'j' ? joistLabel(sel.s, sel.i) : (sel.k === 'b' ? bearerLabel(sel.s, sel.i) : (sel.k === 'd' ? dpostLabel(sel.s, sel.i) : postLabel()))) + '.';
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .stringer'), function (g) {
+      g.classList.toggle('on', !!sel && sel.k === 't' && attr(g, 'data-t') === sel.i);
+    });
+    var text = 'Hover, tap or tab to a joist, bearer, stringer or post to read its position.';
+    if (sel) text = (sel.k === 't' ? stringerLabel(sel.i) : sel.k === 'j' ? joistLabel(sel.s, sel.i) : (sel.k === 'b' ? bearerLabel(sel.s, sel.i) : (sel.k === 'd' ? dpostLabel(sel.s, sel.i) : postLabel()))) + '.';
     $('readout').textContent = text;
   }
 
@@ -499,6 +566,10 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   }
 
   function wire() {
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .stringer'), function (g) {
+      var i = attr(g, 'data-t');
+      bind(g, function () { return { k: 't', i: i, s: 2 }; });
+    });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .joist[data-i]'), function (g) {
       var i = attr(g, 'data-i'), s = attr(g, 'data-s');
       bind(g, function () { return { k: 'j', i: i, s: s }; });
@@ -511,7 +582,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       bind(g, function () { return { k: 'p', i: 0, s: 0 }; });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
-      var i = g.hasAttribute('data-r') ? (P.nb - 1) * P.npp + attr(g, 'data-r') : attr(g, 'data-q'), s = attr(g, 'data-s');
+      var s = attr(g, 'data-s'), i = g.hasAttribute('data-r') ? (P.nb - 1) * S[s].p.npp + attr(g, 'data-r') : attr(g, 'data-q');
       bind(g, function () { return { k: 'd', i: i, s: s }; });
     });
   }

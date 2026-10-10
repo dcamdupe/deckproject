@@ -55,10 +55,11 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Floorboards:** 135 x 20 mm with 2 mm gaps, running the 3000 mm length, across the joists.
   - 14 boards across the 1874 mm width: 13 full boards and a last board on the right-hand side cut down to 93 mm.
   - The structural post (1526 to 1616 mm from the left) falls entirely within board 12 (1507 to 1642 mm), so only that board needs cutting around it.
-- **Step edge boards:** each section ends in one 135 mm board laid across the 1874 mm width at the step, at 90 degrees to the other boards. The lengthwise boards stop 2 mm short of it, so they are 2863 mm long in section 1 and 1673 mm in section 2.
+- **Step edge boards:** each section ends in one 135 mm board laid across the 1874 mm width at the step, at 90 degrees to the other boards. The lengthwise boards stop 2 mm short of it, so they are 2883 mm long in section 1 and 1673 mm in section 2.
   - The edge board runs parallel to the joists. It and the ends of the lengthwise boards need a joist or blocking under them (around 135 mm back from the step). This support is not yet in the layout.
-- **Step face boards:** the 200 mm face of each step is covered with boards running across the width: one full 135 mm board and one cut to 63 mm, with a 2 mm gap. They are drawn in front of the section end, sitting on the lower section's boards.
-  - The face height at the end of section 2 is assumed to be 200 mm until the next step is set.
+- **Step face boards:** the face of each step is covered with boards running across the width, sitting below the horizontal board above. That board overhangs the frame by 20 mm (one board thickness), so its edge is flush with the front of the face boards.
+  - The face below the overhang is 180 mm high: one full 135 mm board and one cut to 43 mm, with a 2 mm gap.
+  - The boards of the level below start 20 mm in, against the front of the face boards.
 
 ### 3.1a Section 2 (step down)
 
@@ -69,6 +70,20 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Deck posts:** 9 posts, three per bearer, at 45, 905 and 1765 mm along the section, so the bearers span 860 mm. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
 - **Floorboards:** same 14-board layout as section 1, plus its own step edge board and face boards.
 - **Not yet decided:** whether the two sections share posts at the junction.
+
+### 3.1b Steps down to the ground
+
+- **Total drop:** 1000 mm from section 1 to the ground, in 5 falls of 200 mm: section 1 to section 2, section 2 to step 1, then steps 1, 2 and 3, with the last fall landing on the ground.
+  - The owner first gave 1070 mm as the total. Because the remaining 870 mm is not a multiple of 200, the owner chose to keep 200 mm falls and stop at 1000 mm, so the ground at the foot of the steps needs building up by about 70 mm (for example a paver or slab).
+- **Steps:** 3 steps below section 2, each 1874 mm wide with a 272 mm going (two 135 mm boards and a 2 mm gap, so no board is ripped).
+- **Step boards:** two boards laid across the width on each step, in the same direction as the section edge boards, and face boards (135 mm and 43 mm) on each face, tucked under the overhanging board above. Each step's boards are shifted 20 mm forward to make that overhang, so the going is still 272 mm.
+- **Stringers:** the steps are carried by 6 cut stringers at 365.8 mm centres across the width, in place of the joists, bearers and posts first drawn under each step.
+  - Stock is assumed to be 290 x 45 mm. With a 200 mm fall and 272 mm going each notch is about 161 mm deep, leaving about 129 mm under the notches. A 240 mm board would leave only about 79 mm. This is geometry only, not a span-table check.
+  - Top: the stringers butt against a 190 x 45 mm ledger (assumed) across the width, fixed to the faces of section 2's three end posts, because the stringers start below section 2's joists.
+  - Bottom: the stringer feet land on a concrete pad or strip footing at the ground, held off the soil on brackets. The footing size is not set.
+  - There are no double joists on the steps; the face boards fix to the stringer risers.
+- **Reference:** `stringer-example.svg` is a labelled side view of the stringer idea.
+- **To check:** a 200 mm fall is above the NCC stair riser range of 115 to 190 mm, and a 1000 mm drop is at the limits noted in section 3.3 (exempt development needs a deck floor no more than 1 m high, and a barrier is required where the fall is 1 m or more).
 
 ### 3.2 Posts, footings and treatment
 
@@ -100,8 +115,10 @@ An interactive SVG page was built and published as a private artifact (Version 6
 ```js
 var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
 /* P2 copies P for section 2 with L: 1810, pt: null (no structural post) and dbl: [4] */
-var DROP = 200, END_RISE = 200; /* END_RISE is assumed */
-var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 960, GUIDE_SPAN = 1000;
+/* PS copies P for each step with L: GOING, pt: null and dbl: [] */
+var ST = { ns: 6, sd: 290, ld: 190, pad: 80 }; /* stringers: count, stock depth, ledger depth, footing depth */
+var FALL = 200, GOING = 272, NSTEPS = 3;
+var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
 ```
 
 - **Layout maths:**
