@@ -64,7 +64,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 - **Position:** directly below section 1 in the top view, continuing along the length. Same 1874 mm width (assumed), 1810 mm long.
 - **Drop:** 200 mm below section 1, measured between board tops.
-- **Joists:** 5 joists, 90 x 45 mm, at 441.25 mm centres (22.5, 463.75, 905, 1346.25 and 1787.5 mm from the top of the section). No doubled joist.
+- **Joists:** 5 joists, 90 x 45 mm, at 441.25 mm centres (22.5, 463.75, 905, 1346.25 and 1787.5 mm from the top of the section). Joist 5, at the bottom edge of the section where it steps down, is a double joist, with the second member against its inward face (1720 to 1765 mm), so 6 joist lengths in total. No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed), on the same lines as section 1, 1810 mm long.
 - **Deck posts:** 9 posts, three per bearer, at 45, 905 and 1765 mm along the section, so the bearers span 860 mm. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
 - **Floorboards:** same 14-board layout as section 1, plus its own step edge board and face boards.
@@ -99,7 +99,7 @@ An interactive SVG page was built and published as a private artifact (Version 6
 
 ```js
 var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
-/* P2 copies P for section 2 with L: 1810, pt: null (no structural post) and dbl: [] */
+/* P2 copies P for section 2 with L: 1810, pt: null (no structural post) and dbl: [4] */
 var DROP = 200, END_RISE = 200; /* END_RISE is assumed */
 var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 960, GUIDE_SPAN = 1000;
 ```

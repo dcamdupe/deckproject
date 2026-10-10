@@ -125,7 +125,6 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .sw.d { background: var(--dpost); border: 1px solid var(--dpost-edge); }
 .sw.f { background: var(--board); border: 1px solid var(--board-edge); }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-figcaption { font-size: 13px; color: var(--muted); max-width: 80ch; }
 .scroller { overflow-x: auto; }
 svg { display: block; width: 100%; min-width: 860px; max-width: 960px; height: auto; margin-inline: auto; color: var(--ink); }
 svg text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
@@ -155,7 +154,6 @@ svg .bearer.on rect, svg .bearer:hover rect { fill: var(--bearer-hi); stroke-wid
 svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 .joist:focus-visible, .bearer:focus-visible, .post:focus-visible, .dpost:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
 .readout { margin: 0; min-height: 3.1em; font: 14px/1.55 var(--mono); color: var(--ink); }
-.note { margin: 0; font-size: 13px; color: var(--muted); max-width: 80ch; }
 @media (prefers-reduced-motion: reduce) { svg .joist rect, svg .bearer rect, svg .post rect, svg .dpost rect { transition: none; } }
 </style>
 
@@ -179,12 +177,9 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     </div>
     <figure>
       <div class="scroller"><svg id="sheet" role="img"></svg></div>
-      <figcaption id="sheet-cap"></figcaption>
     </figure>
     <p class="readout" id="readout" aria-live="polite"></p>
   </section>
-
-  <p class="note">Layout rules follow Bunnings community guidance: joists at 450 mm centres or closer, and a 90 x 45 mm joist spanning about 1,000 mm between supports. These are not AS 1684 span tables. The bearer size of 140 x 45 mm on edge is an assumption, taken from a community example. The structural post position is measured to its nearest faces, and its height is not set yet. The deck posts are an assumed 90 x 90 mm, three under each bearer. The layers are drawn solid and stacked in build order, so in the top view the floorboards hide the frame and the bearers and joists hide most of each deck post; use the toggles to see the layers underneath. Distances between deck posts are centre to centre. Floorboards run the length of the deck, across the joists; the last board on the right-hand side is cut down to fit. Their size, spacing and height are not confirmed, and footings are not drawn yet. Section 2 is a 200 mm step down from section 1, with its own bearers, joists and posts. Each section ends in an edge board laid across the step, at 90 degrees to the other boards, with boards on the face of the step below it. The face at the end of section 2 is assumed to be 200 mm high. The edge boards run parallel to the joists, so they and the ends of the lengthwise boards need a joist or blocking under them; that support is not drawn yet. Confirm sizes, spans and footings with your certifier or engineer.</p>
 </main>
 
 <script>
@@ -192,7 +187,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   var $ = function (id) { return document.getElementById(id); };
   var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
   /* section 2: a step down, below section 1 in the top view, with no structural post */
-  var P2 = { W: P.W, L: 1810, t: P.t, d: P.d, maxC: P.maxC, nb: P.nb, bt: P.bt, bd: P.bd, ps: P.ps, pt: null, pr: P.pr, pg: P.pg, dbl: [], dps: P.dps, npp: P.npp, bw: P.bw, bh: P.bh, bg: P.bg };
+  var P2 = { W: P.W, L: 1810, t: P.t, d: P.d, maxC: P.maxC, nb: P.nb, bt: P.bt, bd: P.bd, ps: P.ps, pt: null, pr: P.pr, pg: P.pg, dbl: [4], dps: P.dps, npp: P.npp, bw: P.bw, bh: P.bh, bg: P.bg };
   var DROP = 200;
   /* height of the face at the end of section 2; assumed until the next step is set */
   var END_RISE = 200;
@@ -460,7 +455,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     var postOk = m.nearJ > 0 && m.nearB > 0;
     var cut = m.fb[m.fb.length - 1].w;
     $('chips').innerHTML =
-      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long. Section 1' + (P.dbl.length ? ' has joist ' + P.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled' : '') + ', plus short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
+      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long. ' + S.map(function (sc, si) { return sc.p.dbl.length ? 'Section ' + (si + 1) + ' has joist ' + sc.p.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled. ' : ''; }).join('') + 'Section 1 also has short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
       '<div class="chip"><span class="k">Max joist centres</span><span class="v">' + fmt(mc) + '<small>mm</small></span><span class="s">section 1 up to ' + fmt(m.mc) + ' mm, section 2 ' + fmt(m2.mc) + ' mm</span>' +
         '<span class="pill ' + (centresOk ? 'ok' : 'warn') + '">' + (centresOk ? 'Within ' + fmt(P.maxC) + ' mm max' : 'Over ' + fmt(P.maxC) + ' mm max') + '</span></div>' +
       '<div class="chip"><span class="k">Bearers</span><span class="v">' + P.nb + ' + ' + P2.nb + '</span><span class="s">' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm (assumed), ' + fmt(P.L) + ' and ' + fmt(P2.L) + ' mm long</span></div>' +
@@ -473,7 +468,6 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       '<div class="chip"><span class="k">Step boards</span><span class="v">' + S.length + ' + ' + (strips(DROP, P).length + strips(END_RISE, P2).length) + '</span><span class="s">one ' + fmt(P.W) + ' mm edge board across each step, and face boards of ' + strips(DROP, P).map(function (b) { return fmt(b.w); }).join(' and ') + ' mm on each ' + fmt(DROP) + ' mm face</span></div>' +
       '<div class="chip"><span class="k">Step down</span><span class="v">' + fmt(DROP) + '<small>mm</small></span><span class="s">section 2 (' + fmt(P2.L) + ' mm long) sits below section 1 (' + fmt(P.L) + ' mm long)</span></div>';
     $('lede').textContent = 'Two sections, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(DROP) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers.';
-    $('sheet-cap').textContent = 'Left, looking down on the frame: the joists run left to right across the ' + fmt(P.W) + ' mm width and sit on top of the bearers. Where a joist crosses a bearer you see the joist, so the bearers show in the gaps between. Section 2 is drawn directly below section 1. Right, looking from the right-hand edge with up to the left: you see the ' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm joist ends on top of the ' + fmt(P.bd) + ' mm deep bearer, each level with its row in the top view, and section 2 shifted right by its ' + fmt(DROP) + ' mm drop. The structural post runs through the frame between ' + m.between + ', behind the bearer in the side view, and continues above and below because its height is not set yet.';
   }
 
   function attr(g, name) { return parseInt(g.getAttribute(name), 10); }
