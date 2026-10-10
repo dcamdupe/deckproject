@@ -36,6 +36,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Joists:** 90 x 45 mm at no more than 450 mm centres.
   - 3000 mm length, 45 mm thick: 7 bays, so 8 joists at 422.14 mm centres.
   - Joist centre positions: 22.5, 444.6, 866.8, 1288.9, 1711.1, 2133.2, 2555.4 and 2977.5 mm.
+  - Joist 1 is a double joist: a second 90 x 45 mm member fixed against its inward face (occupying 45 to 90 mm), so 9 joist lengths in total. No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed size), under the joists.
   - Bearer centres: 22.5, 937 and 1851.5 mm, about 914.5 mm apart.
   - This is within the roughly 1000 mm span guide for a 90 x 45 mm joist.
@@ -73,7 +74,7 @@ An interactive SVG page was built and published as a private artifact (Version 6
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258 };
+var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, dbl: [0] };
 var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 856, GUIDE_SPAN = 1000;
 ```
 
