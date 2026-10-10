@@ -83,6 +83,12 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - Bottom: the stringer feet land on a concrete pad or strip footing at the ground, held off the soil on brackets. The footing size is not set.
   - There are no double joists on the steps; the face boards fix to the stringer risers.
 - **Reference:** `stringer-example.svg` is a labelled side view of the stringer idea.
+- **Option: pre-made steel stringers.** [Peak Products Black 3 Tread Steel Stair Stringer (Bunnings)](https://www.bunnings.com.au/peak-products-black-3-tread-steel-stair-stringer_p0083611) could replace the cut timber stringers, using 3 of them across the 1874 mm width (one at each side and one in the middle, about 915 mm apart). Not adopted yet; the drawing still shows 6 timber stringers.
+  - Listed geometry is a 165 mm rise and 240 mm going, against the 200 mm and 272 mm drawn, so the steps would need re-setting out. 165 mm is inside the NCC riser range of 115 to 190 mm.
+  - Height: 800 mm from section 2 needs about 5 rises at 165 mm (825 mm). The listing does not state the total height of the 3-tread size, so check whether it is tall enough or whether a larger size is needed.
+  - Bunnings lists two stringers for stairs up to 1200 mm wide, so three covers the width. That spacing needs solid stair treads (around 45 mm thick); 20 mm decking boards would need support about every 450 mm.
+  - A 240 mm going will not take two 135 mm boards, and the listing does not cover fixing face boards.
+  - Finish is powder-coated steel, with no mention of galvanising. Load rating, steel thickness and fixing details were not on the listing; check the manufacturer's installation guide.
 - **To check:** a 200 mm fall is above the NCC stair riser range of 115 to 190 mm, and a 1000 mm drop is at the limits noted in section 3.3 (exempt development needs a deck floor no more than 1 m high, and a barrier is required where the fall is 1 m or more).
 
 ### 3.2 Posts, footings and treatment
