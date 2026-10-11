@@ -77,13 +77,14 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - The owner first gave 1070 mm as the total. Because the remaining 870 mm is not a multiple of 200, the owner chose to keep 200 mm falls and stop at 1000 mm, so the ground at the foot of the steps needs building up by about 70 mm (for example a paver or slab).
 - **Steps:** 3 steps below section 2, each 1874 mm wide with a 272 mm going (two 135 mm boards and a 2 mm gap, so no board is ripped).
 - **Step boards:** two boards laid across the width on each step, in the same direction as the section edge boards, and face boards (135 mm and 43 mm) on each face, tucked under the overhanging board above. Each step's boards are shifted 20 mm forward to make that overhang, so the going is still 272 mm.
-- **Stringers:** the steps are carried by 6 cut stringers at 365.8 mm centres across the width, in place of the joists, bearers and posts first drawn under each step.
+- **Stringers:** the steps are carried by 5 cut stringers at 457.25 mm centres across the width (412 mm clear between them), in place of the joists, bearers and posts first drawn under each step.
+  - 457.25 mm is 7 mm over the 450 mm limit used for the joists; the owner accepted this (11 October 2026) to use 5 stringers, not 6.
   - Stock is assumed to be 290 x 45 mm. With a 200 mm fall and 272 mm going each notch is about 161 mm deep, leaving about 129 mm under the notches. A 240 mm board would leave only about 79 mm. This is geometry only, not a span-table check.
   - Top: the stringers butt against a 190 x 45 mm ledger (assumed) across the width, fixed to the faces of section 2's three end posts, because the stringers start below section 2's joists.
   - Bottom: the stringer feet land on a concrete pad or strip footing at the ground, held off the soil on brackets. The footing size is not set.
   - There are no double joists on the steps; the face boards fix to the stringer risers.
 - **Reference:** `stringer-example.svg` is a labelled side view of the stringer idea.
-- **Option: pre-made steel stringers.** [Peak Products Black 3 Tread Steel Stair Stringer (Bunnings)](https://www.bunnings.com.au/peak-products-black-3-tread-steel-stair-stringer_p0083611) could replace the cut timber stringers, using 3 of them across the 1874 mm width (one at each side and one in the middle, about 915 mm apart). Not adopted yet; the drawing still shows 6 timber stringers.
+- **Option: pre-made steel stringers.** [Peak Products Black 3 Tread Steel Stair Stringer (Bunnings)](https://www.bunnings.com.au/peak-products-black-3-tread-steel-stair-stringer_p0083611) could replace the cut timber stringers, using 3 of them across the 1874 mm width (one at each side and one in the middle, about 915 mm apart). Not adopted yet; the drawing still shows 5 timber stringers.
   - Listed geometry is a 165 mm rise and 240 mm going, against the 200 mm and 272 mm drawn, so the steps would need re-setting out. 165 mm is inside the NCC riser range of 115 to 190 mm.
   - Height: 800 mm from section 2 needs about 5 rises at 165 mm (825 mm). The listing does not state the total height of the 3-tread size, so check whether it is tall enough or whether a larger size is needed.
   - Bunnings lists two stringers for stairs up to 1200 mm wide, so three covers the width. That spacing needs solid stair treads (around 45 mm thick); 20 mm decking boards would need support about every 450 mm.
@@ -122,7 +123,7 @@ An interactive SVG page was built and published as a private artifact (Version 6
 var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
 /* P2 copies P for section 2 with L: 1810, pt: null (no structural post) and dbl: [4] */
 /* PS copies P for each step with L: GOING, pt: null and dbl: [] */
-var ST = { ns: 6, sd: 290, ld: 190, pad: 80 }; /* stringers: count, stock depth, ledger depth, footing depth */
+var ST = { ns: 5, sd: 290, ld: 190, pad: 80, maxC: 460 }; /* stringers: count, stock depth, ledger depth, footing depth, accepted max centres */
 var FALL = 200, GOING = 272, NSTEPS = 3;
 var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
 ```

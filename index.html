@@ -199,8 +199,9 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   /* section 2 and the steps have no structural post and a double joist at their bottom edge */
   var P2 = sub({ L: 1810, pt: null, dbl: [4] });
   var PS = sub({ L: GOING, pt: null, dbl: [] });
-  /* stringers carry the steps: ns across the width, cut from sd x t stock, fixed to a ledger (ld deep) and landing on a footing */
-  var ST = { ns: 6, sd: 290, ld: 190, pad: 80 };
+  /* stringers carry the steps: ns across the width, cut from sd x t stock, fixed to a ledger (ld deep) and landing on a footing.
+     maxC is the owner's accepted limit, a little over the 450 mm joist limit */
+  var ST = { ns: 5, sd: 290, ld: 190, pad: 80, maxC: 460 };
   var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
   var sel = null;
 
@@ -528,7 +529,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(boardLen(0)) + ' and ' + fmt(boardLen(1)) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +
       '<div class="chip"><span class="k">Steps</span><span class="v">' + NSTEPS + '</span><span class="s">' + fmt(GOING) + ' mm going, ' + strips(GOING, P).length + ' boards laid across each</span></div>' +
       '<div class="chip"><span class="k">Stringers</span><span class="v">' + ST.ns + '</span><span class="s">' + fmt(ST.sd) + ' x ' + fmt(P.t) + ' mm (assumed) at ' + fmt(SG.c) + ' mm centres, about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. Fixed to a ledger on the end posts of section 2, landing on a concrete footing</span>' +
-        '<span class="pill ' + (SG.c <= P.maxC ? 'ok' : 'warn') + '">' + (SG.c <= P.maxC ? 'Within ' : 'Over ') + fmt(P.maxC) + ' mm max</span></div>' +
+        '<span class="pill ' + (SG.c <= ST.maxC ? 'ok' : 'warn') + '">' + (SG.c <= P.maxC ? 'Within ' + fmt(P.maxC) + ' mm max' : SG.c <= ST.maxC ? fmt(Math.round(SG.c - P.maxC)) + ' mm over ' + fmt(P.maxC) + ' mm, accepted' : 'Over ' + fmt(ST.maxC) + ' mm max') + '</span></div>' +
       '<div class="chip"><span class="k">Step face boards</span><span class="v">' + S.length * faceBoards(S[0]).length + '</span><span class="s">' + faceBoards(S[0]).map(function (b) { return fmt(b.w); }).join(' and ') + ' mm boards on each of the ' + S.length + ' step faces, tucked under the board above, which overhangs by ' + fmt(P.bh) + ' mm. Sections 1 and 2 each end in one edge board laid across</span></div>' +
       '<div class="chip"><span class="k">Total drop</span><span class="v">' + fmt(GROUND) + '<small>mm</small></span><span class="s">' + S.length + ' falls of ' + fmt(FALL) + ' mm from section 1 to the ground</span></div>';
     $('lede').textContent = 'Two sections and ' + NSTEPS + ' steps, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(FALL) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers. ' + NSTEPS + ' steps on ' + ST.ns + ' stringers then run down to the ground, each with a ' + fmt(GOING) + ' mm going and a ' + fmt(FALL) + ' mm fall, for a total drop of ' + fmt(GROUND) + ' mm.';

@@ -100,15 +100,14 @@
 <line class="lead" x1="873.0" y1="475.0" x2="963.0" y2="450.0"/><circle class="dot" cx="873.0" cy="475.0" r="2.5"/><text class="lbl" x="969.0" y="454.0" text-anchor="start">Face board under the</text><text class="small" x="969.0" y="470.0" text-anchor="start">overhang of the tread above</text>
 <line class="lead" x1="790.6" y1="555.0" x2="910.6" y2="585.0"/><circle class="dot" cx="790.6" cy="555.0" r="2.5"/><text class="lbl" x="916.6" y="589.0" text-anchor="start">Concrete pad or strip footing</text><text class="small" x="916.6" y="605.0" text-anchor="start">Stringer feet sit on brackets, off the soil</text>
 <line class="lead" x1="596.0" y1="370.0" x2="295.0" y2="480.0"/><circle class="dot" cx="596.0" cy="370.0" r="2.5"/><text class="lbl" x="289.0" y="484.0" text-anchor="end">About 130 mm of timber left under each notch</text><text class="small" x="289.0" y="500.0" text-anchor="end">This is the part that carries the load</text>
-<text class="lbl" x="460" y="690" font-weight="600">From above: 6 stringers at 366 mm centres</text>
+<text class="lbl" x="460" y="690" font-weight="600">From above: 5 stringers at 457 mm centres</text>
 <rect class="plan" x="460" y="700" width="356.1" height="155.0"/>
 <line class="ptr" x1="460" y1="751.7" x2="816.1" y2="751.7"/>
 <line class="ptr" x1="460" y1="803.4" x2="816.1" y2="803.4"/>
 <rect class="pstr" x="460.0" y="700" width="8.6" height="155.0"/>
-<rect class="pstr" x="529.5" y="700" width="8.6" height="155.0"/>
-<rect class="pstr" x="599.0" y="700" width="8.6" height="155.0"/>
-<rect class="pstr" x="668.5" y="700" width="8.6" height="155.0"/>
-<rect class="pstr" x="738.0" y="700" width="8.6" height="155.0"/>
+<rect class="pstr" x="546.9" y="700" width="8.6" height="155.0"/>
+<rect class="pstr" x="633.8" y="700" width="8.6" height="155.0"/>
+<rect class="pstr" x="720.6" y="700" width="8.6" height="155.0"/>
 <rect class="pstr" x="807.5" y="700" width="8.6" height="155.0"/>
 <text class="small" x="460" y="873.0">Deck edge at the top, ground at the bottom. Width 1874 mm.</text>
 </svg>
