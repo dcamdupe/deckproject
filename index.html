@@ -211,13 +211,13 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
+  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
   /* DROP is the measured fall to the grass, split into equal falls: one between the sections, then one per step and one to the ground */
   var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2);
   function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
   /* section 2 and the steps have no structural post and a double joist at their bottom edge */
-  var P2 = sub({ L: 1075, pt: null, dbl: [3], npp: 2 });
-  var PS = sub({ L: GOING, pt: null, dbl: [] });
+  var P2 = sub({ L: 1075, pt: null, dbl: [3], npp: 2, pf: 50, pe: 0 });
+  var PS = sub({ L: GOING, pt: null, dbl: [], pf: 0, pe: 0 });
   /* stringers carry the steps: ns across the width, cut from sd x t stock (the owner's 290 x 65 H3), fixed to a ledger (ld deep) and landing on a footing.
      maxC is the owner's accepted limit, a little over the 450 mm joist limit */
   var ST = { ns: 5, sd: 290, t: 65, ld: 190, pad: 80, maxC: 460 };
@@ -270,11 +270,14 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
     var mc = 0;
     for (i = 1; i < fs.length; i++) mc = Math.max(mc, fs[i] - fs[i - 1]);
     var postX = p.W - p.pr - p.ps;
-    /* deck posts under each bearer, kept inside the deck outline */
+    /* deck posts under each bearer, kept inside the deck outline; the first and last rows are set back pf and pe from the ends */
     var dp = [], q;
     for (j = 0; j < p.nb; j++) for (q = 0; q < p.npp; q++) {
-      dp.push({ j: j, r: q, x: Math.min(Math.max(ys[j], p.dps / 2), p.W - p.dps / 2), y: p.npp > 1 ? p.dps / 2 + q * (p.L - p.dps) / (p.npp - 1) : p.L / 2 });
+      dp.push({ j: j, r: q, x: Math.min(Math.max(ys[j], p.dps / 2), p.W - p.dps / 2), y: p.npp > 1 ? p.dps / 2 + q * (p.L - p.dps) / (p.npp - 1) + (q === 0 ? p.pf : 0) - (q === p.npp - 1 ? p.pe : 0) : p.L / 2 });
     }
+    /* post centre-to-centre distances along a bearer */
+    var bs = [];
+    for (q = 1; q < p.npp; q++) bs.push(dp[q].y - dp[q - 1].y);
     /* floorboards across the width; the last one is cut down to fit */
     var fb = strips(p.W, p);
     var ex = null, nearJ = Infinity, nearB = Infinity, between = '';
@@ -286,7 +289,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       for (i = 0; i <= n; i++) nearJ = Math.min(nearJ, gap(xs[i] - p.t / 2 + Math.min(ds[i], 0), xs[i] + p.t / 2 + Math.max(ds[i], 0), p.pt, p.pt + p.ps));
       for (j = 0; j < p.nb; j++) nearB = Math.min(nearB, gap(ys[j] - p.bt / 2, ys[j] + p.bt / 2, postX, postX + p.ps));
     }
-    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, fb: fb, bs: p.npp > 1 ? (p.L - p.dps) / (p.npp - 1) : 0, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
+    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, fb: fb, bs: bs, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
   }
   var m = calc(P), m2 = calc(P2);
   /* off: distance down the top view; drop: how far it sits below section 1; rise: height of its step face */
@@ -583,7 +586,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
         '<span class="pill ' + (spanOk ? 'ok' : 'warn') + '">' + (spanOk ? 'Within the ~1,000 mm guide' : 'Over the ~1,000 mm guide') + '</span></div>' +
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
         '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>' +
-      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' and ' + P2.npp + ' per bearer, ' + fmt(m.bs) + ' and ' + fmt(m2.bs) + ' mm centres</span></div>' +
+      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' and ' + P2.npp + ' per bearer, ' + m.bs.map(fmt).join(' and ') + ' mm centres in section 1, ' + m2.bs.map(fmt).join(' and ') + ' mm in section 2. Section 1\'s end posts and section 2\'s top posts are set back ' + fmt(P.pe) + ' and ' + fmt(P2.pf) + ' mm</span></div>' +
       '<div class="chip"><span class="k">PVC pipe</span><span class="v">' + fmt(PV.d) + '<small>mm</small></span><span class="s">' + fmt(PV.r0) + ' mm from the right edge, turning at ' + fmt(PV.turn) + ' mm to run ' + fmt(PV.r1) + ' mm from the right edge. Nearest deck post ' + fmt(PVG.nearD.g) + ' mm, nearest stringer ' + fmt(PVG.nearT) + ' mm, in plan</span>' +
         '<span class="pill ' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'ok' : 'warn') + '">' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'Clear of all posts and stringers' : 'Passes under a deck post or stringer') + '</span></div>' +
       '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(boardLen(0)) + ' and ' + fmt(boardLen(1)) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +

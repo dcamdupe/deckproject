@@ -48,7 +48,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - Post occupies x 1526 to 1616 mm from the left and y 2000 to 2090 mm from the top.
   - Clearances: 20 mm to joist 6 (above), 20 mm to joist 6a (below), 213 mm to the right bearer, 566.5 mm to the centre bearer.
   - The post sits between joists 6 and 6a.
-- **Deck posts:** 9 posts, 90 x 90 mm (assumed size), three under each bearer.
+- **Deck posts:** 9 posts, 90 x 90 mm (assumed size), three under each bearer, at 45, 1375 and 2655 mm along the section (centres 1330 and 1280 mm). The end posts were set back 50 mm from the end of the section on 16 October 2026, so their far face is 100 mm from the end; the other posts did not move.
   - Along the length: centres at 45, 1500 and 2955 mm from the top, so the bearers span 1455 mm between post centres. This span is not yet checked against AS 1684.
   - Across the width: centres at 45, 937 and 1829 mm from the left. Edge posts are kept flush inside the deck outline rather than centred on the edge bearers.
   - Height, footings and stirrups are still open.
@@ -67,7 +67,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Drop:** 176.4 mm below section 1, measured between board tops (one of the 5 equal falls in section 3.1b). It was 152.9 mm before 16 October 2026 and 200 mm before 11 October 2026.
 - **Joists:** 4 joists, 90 x 45 mm, at 343.33 mm centres (22.5, 365.83, 709.17 and 1052.5 mm from the top of the section). Joist 4, at the bottom edge of the section where it steps down, is a double joist, with the second member against its inward face (985 to 1030 mm), so 5 joist lengths in total. No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed), on the same lines as section 1, 1075 mm long.
-- **Deck posts:** 6 posts, two per bearer, at 45 and 1030 mm along the section, so the bearers span 985 mm (three per bearer until 16 October 2026). This is shorter than section 1's 1330 mm bearer spans; neither is checked against span tables. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
+- **Deck posts:** 6 posts, two per bearer, at 95 and 1030 mm along the section, so the bearers span 935 mm (three per bearer until 16 October 2026). The top posts were set back 50 mm from the top of the section on 16 October 2026. This is shorter than section 1's 1330 and 1280 mm bearer spans; neither is checked against span tables. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
 - **Floorboards:** same 14-board layout as section 1, plus its own step edge board and face boards.
 - **Not yet decided:** whether the two sections share posts at the junction.
 
@@ -124,19 +124,20 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - Top view on the left. Side view on the right, looking from the right-hand edge with up to the left, so joist ends are nearest the top view and the bearer is beyond.
 - Both views share the vertical scale so the joist rows align.
 - Section 2 is drawn below section 1 in the top view, and shifted right by its drop in the side view.
-- Nothing in the drawing is configurable unless the owner asks. The only toggles are Joists, Bearers, Deck posts, Floorboards and Structural post.
+- Nothing in the drawing is configurable unless the owner asks. The only toggles are Joists, Bearers, Deck posts, Floorboards, Structural post and PVC pipe.
 - No inputs and no layers for joist numbers, dimensions or bearer lines.
 
 ## 4. The interactive drawing
 
 An interactive SVG page was built and published as a private artifact (Version 6). Its source is a single HTML file with a JavaScript IIFE that generates the SVG.
 
-- **Features:** top and side views, show/hide toggles (Joists, Bearers, Deck posts, Floorboards, Structural post), hover/tap/focus readouts for joists, bearers, deck posts and the structural post, summary chips, light and dark themes, IBM Plex fonts, aria labels.
+- **Features:** top and side views, show/hide toggles (Joists, Bearers, Deck posts, Floorboards, Structural post, PVC pipe), hover/tap/focus readouts for joists, bearers, deck posts, stringers, the structural post and the pipe, summary chips, light and dark themes, IBM Plex fonts, aria labels.
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
-/* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3], npp: 2 (two posts per bearer) */
+var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
+/* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3], npp: 2 (two posts per bearer), pf: 50, pe: 0 */
+/* pf, pe: how far the first and last rows of deck posts are set back from the ends of the section */
 /* PS copies P for each step with L: GOING, pt: null and dbl: [] */
 var ST = { ns: 5, sd: 290, t: 65, ld: 190, pad: 80, maxC: 460 }; /* stringers: count, stock depth, thickness, ledger depth, footing depth, accepted max centres */
 var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2); /* measured drop, split into equal falls */
