@@ -192,12 +192,12 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 3000, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2250, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
+  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
   /* DROP is the measured fall to the grass, split into equal falls: one between the sections, then one per step and one to the ground */
-  var DROP = 1070, GOING = 245, NSTEPS = 5, FALL = DROP / (NSTEPS + 2);
+  var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2);
   function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
   /* section 2 and the steps have no structural post and a double joist at their bottom edge */
-  var P2 = sub({ L: 1810, pt: null, dbl: [4] });
+  var P2 = sub({ L: 1075, pt: null, dbl: [3] });
   var PS = sub({ L: GOING, pt: null, dbl: [] });
   /* stringers carry the steps: ns across the width, cut from sd x t stock (the owner's 290 x 65 H3), fixed to a ledger (ld deep) and landing on a footing.
      maxC is the owner's accepted limit, a little over the 450 mm joist limit */
