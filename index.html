@@ -2,7 +2,7 @@
 <title>Deck Joist Layout</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: a drawing-sheet page. Key figures first, then one sheet with the top view (joists running left to right over the bearers) and the side view to its right, sharing one vertical scale so every joist lines up with its row. Only the joist, bearer, deck post, floorboard and structural post toggles are configurable. */
+/* Layout: a drawing-sheet page. Key figures first, then one sheet with the top view (joists running left to right over the bearers) and the side view to its right, sharing one vertical scale so every joist lines up with its row. Only the joist, bearer, deck post, floorboard, structural post and pipe toggles are configurable. */
 :root {
   --bg: #EEF1F4;
   --panel: #FFFFFF;
@@ -24,6 +24,9 @@
   --dpost: #6F8F4E;
   --dpost-edge: #3B5226;
   --dpost-hi: #93B56E;
+  --pipe: #5C9FAE;
+  --pipe-edge: #24525C;
+  --pipe-hi: #86C3D0;
   --guide: #2B6CA3;
   --ok: #1E7A4C;
   --ok-bg: #E1F2E8;
@@ -54,6 +57,9 @@
     --dpost: #7FA05A;
     --dpost-edge: #CFE3B5;
     --dpost-hi: #A5C77E;
+    --pipe: #5FB0BE;
+    --pipe-edge: #CBEFF5;
+    --pipe-hi: #8AD3DF;
     --guide: #7DB3E0;
     --ok: #6CCB97;
     --ok-bg: #16301F;
@@ -83,6 +89,9 @@
   --dpost: #7FA05A;
   --dpost-edge: #CFE3B5;
   --dpost-hi: #A5C77E;
+  --pipe: #5FB0BE;
+  --pipe-edge: #CBEFF5;
+  --pipe-hi: #8AD3DF;
   --guide: #7DB3E0;
   --ok: #6CCB97;
   --ok-bg: #16301F;
@@ -124,6 +133,7 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .sw.p { background: var(--post); border: 1px solid var(--post-edge); }
 .sw.d { background: var(--dpost); border: 1px solid var(--dpost-edge); }
 .sw.f { background: var(--board); border: 1px solid var(--board-edge); }
+.sw.v { background: var(--pipe); border: 1px solid var(--pipe-edge); }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .scroller { overflow-x: auto; }
 svg { display: block; width: 100%; min-width: 900px; max-width: 1040px; height: auto; margin-inline: auto; color: var(--ink); }
@@ -146,7 +156,7 @@ svg .post rect { fill: var(--post); stroke: var(--post-edge); stroke-width: 1; t
 svg .post rect.open { stroke: none; }
 svg .post line.edge { stroke: var(--post-edge); stroke-width: 1; }
 svg .post line.brk { stroke: var(--post-edge); stroke-width: 1; stroke-dasharray: 3 2; }
-/* layers are opaque and stacked in build order: posts, bearers, joists, boards */
+/* layers are opaque and stacked in build order: pipe, posts, bearers, joists, boards */
 svg .board rect { fill: var(--board); stroke: var(--board-edge); stroke-width: 0.75; }
 /* labels that sit over the deck get a panel-coloured halo so they stay readable on the boards */
 svg .halo text { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
@@ -160,6 +170,14 @@ svg .joist.on rect, svg .joist:hover rect { fill: var(--timber-hi); stroke-width
 svg .bearer.on rect, svg .bearer:hover rect { fill: var(--bearer-hi); stroke-width: 1.75; }
 svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
 .joist:focus-visible, .bearer:focus-visible, .post:focus-visible, .dpost:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
+/* the pipe is the bottom layer, under the posts, frame and boards */
+svg .pipe { cursor: pointer; }
+svg .pipe path { fill: none; stroke-linejoin: miter; }
+svg .pipe .pe { stroke: var(--pipe-edge); }
+svg .pipe .pf { stroke: var(--pipe); transition: stroke 0.12s; }
+svg .pipe .pc { stroke: var(--pipe-edge); stroke-width: 0.75; stroke-dasharray: 6 3 1 3; }
+svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
+.pipe:focus-visible { outline: 2px solid var(--guide); outline-offset: 2px; }
 .readout { margin: 0; min-height: 3.1em; font: 14px/1.55 var(--mono); color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { svg .joist rect, svg .bearer rect, svg .post rect, svg .dpost rect { transition: none; } }
 </style>
@@ -181,6 +199,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       <label class="toggle"><input type="checkbox" id="t-d" checked><span>Deck posts<i class="sw d"></i></span></label>
       <label class="toggle"><input type="checkbox" id="t-f" checked><span>Floorboards<i class="sw f"></i></span></label>
       <label class="toggle"><input type="checkbox" id="t-p" checked><span>Structural post<i class="sw p"></i></span></label>
+      <label class="toggle"><input type="checkbox" id="t-v" checked><span>PVC pipe<i class="sw v"></i></span></label>
     </div>
     <figure>
       <div class="scroller"><svg id="sheet" role="img"></svg></div>
@@ -197,7 +216,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2);
   function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
   /* section 2 and the steps have no structural post and a double joist at their bottom edge */
-  var P2 = sub({ L: 1075, pt: null, dbl: [3] });
+  var P2 = sub({ L: 1075, pt: null, dbl: [3], npp: 2 });
   var PS = sub({ L: GOING, pt: null, dbl: [] });
   /* stringers carry the steps: ns across the width, cut from sd x t stock (the owner's 290 x 65 H3), fixed to a ledger (ld deep) and landing on a footing.
      maxC is the owner's accepted limit, a little over the 450 mm joist limit */
@@ -289,6 +308,27 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
     return { pts: pts, top: top, throat: throat, run: run, foot: foot, c: c, xs: xs };
   })();
 
+  /* PVC pipe under the deck, measured from the right edge: down turn mm, across to r1, then down the rest of the deck */
+  var PV = { d: 90, r0: 115, turn: 600, r1: 1020 };
+  var PVG = (function () {
+    var xa = P.W - PV.r0, xb = P.W - PV.r1, h = PV.d / 2;
+    var pts = [[xa, 0], [xa, PV.turn], [xb, PV.turn], [xb, TOTAL]];
+    var segs = [[xa - h, xa + h, 0, PV.turn + h], [xb - h, xa + h, PV.turn - h, PV.turn + h], [xb - h, xb + h, PV.turn - h, TOTAL]];
+    /* plan clearance from the pipe to a box, 0 where they overlap */
+    var clear = function (b) { return Math.min.apply(null, segs.map(function (g) { return Math.hypot(gap(g[0], g[1], b[0], b[1]), gap(g[2], g[3], b[2], b[3])); })); };
+    var nearD = { g: Infinity }, nearT = Infinity, k;
+    S.forEach(function (sc, si) {
+      if (sc.step) return;
+      sc.m.dp.forEach(function (d, q) {
+        var r = sc.p.dps / 2, g = clear([d.x - r, d.x + r, sc.off + d.y - r, sc.off + d.y + r]);
+        if (g < nearD.g) nearD = { g: g, s: si, q: q };
+      });
+    });
+    for (k = 0; k < ST.ns; k++) nearT = Math.min(nearT, clear([SG.xs[k] - ST.t / 2, SG.xs[k] + ST.t / 2, S[2].off + P.t, S[2].off + SG.run]));
+    var nearP = clear([m.postX, m.postX + P.ps, P.pt, P.pt + P.ps]);
+    return { pts: pts, len: PV.turn + (xa - xb) + (TOTAL - PV.turn), nearD: nearD, nearT: nearT, nearP: nearP };
+  })();
+
   function dimH(x1, x2, y, label, below) {
     return '<g class="dim"><line x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '"/>' +
       '<line x1="' + x1 + '" y1="' + (y - 4) + '" x2="' + x1 + '" y2="' + (y + 4) + '"/>' +
@@ -332,10 +372,15 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   function postLabel() {
     return 'Structural post, ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm: ' + fmt(P.pt) + ' mm from the top and ' + fmt(P.pr) + ' mm from the right edge, measured to its nearest faces. Nearest joist ' + fmt(m.nearJ) + ' mm away, nearest bearer ' + fmt(m.nearB) + ' mm away';
   }
+  function pipeLabel() {
+    var nd = PVG.nearD;
+    return 'PVC pipe, ' + fmt(PV.d) + ' mm, under the deck: centreline ' + fmt(PV.r0) + ' mm from the right edge for the first ' + fmt(PV.turn) + ' mm, then a 90 degree turn across to ' + fmt(PV.r1) + ' mm from the right edge and another down the rest of the deck, about ' + fmt(PVG.len) + ' mm along its centreline. ' +
+      'In plan it is ' + fmt(nd.g) + ' mm from the nearest deck post (' + S[nd.s].name.toLowerCase() + ', post ' + (nd.q + 1) + ') and ' + fmt(PVG.nearT) + ' mm from the nearest stringer. Its depth is not set';
+  }
   function isOn(k, si, i) { return sel && sel.k === k && sel.s === si && (i === undefined || sel.i === i) ? ' on' : ''; }
 
   function drawSheet() {
-    var showJ = $('t-j').checked, showB = $('t-b').checked, showP = $('t-p').checked, showD = $('t-d').checked, showF = $('t-f').checked;
+    var showJ = $('t-j').checked, showB = $('t-b').checked, showP = $('t-p').checked, showD = $('t-d').checked, showF = $('t-f').checked, showV = $('t-v').checked;
     var w = P.W * K, H = TOTAL * K, dpx = P.d * K, bdpx = P.bd * K, bhpx = P.bh * K, tpx = P.t * K, dsz = P.dps * K;
     var BY = OY + H + 22, vbH = Math.round(BY + (showD ? 92 : 66));
     var ppx = OX + m.postX * K, ppy = OY + P.pt * K, psz = P.ps * K;
@@ -355,6 +400,16 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       '<line class="brk" x1="' + sideL + '" y1="' + r1(ppy - 3) + '" x2="' + sideL + '" y2="' + r1(ppy + psz + 3) + '"/>' +
       '<line class="brk" x1="' + r1(sideR) + '" y1="' + r1(ppy - 3) + '" x2="' + r1(sideR) + '" y2="' + r1(ppy + psz + 3) + '"/></g>';
     if (showP) o += '<text x="' + sideL + '" y="' + r1(ppy - 8) + '">Post</text>';
+
+    /* pipe runs under everything, so it is drawn first; its dimensions are added on top later */
+    if (showV) {
+      var pd = PVG.pts.map(function (q, k) { return (k ? 'L' : 'M') + r1(OX + q[0] * K) + ' ' + r1(OY + q[1] * K); }).join(' ');
+      var pvx0 = OX + PVG.pts[0][0] * K, pvx1 = OX + PVG.pts[2][0] * K, pvy = OY + PV.turn * K;
+      o += '<g class="pipe' + (sel && sel.k === 'v' ? ' on' : '') + '" tabindex="0" role="img" aria-label="' + pipeLabel() + '"><title>' + pipeLabel() + '</title>' +
+        '<path class="pe" d="' + pd + '" stroke-width="' + r1(PV.d * K + 2) + '"/><path class="pf" d="' + pd + '" stroke-width="' + r1(PV.d * K) + '"/><path class="pc" d="' + pd + '"/></g>';
+      late += '<g class="halo">' + dimH(r1(pvx0), r1(OX + w), r1(OY + 60), fmt(PV.r0)) + dimH(r1(pvx1), r1(OX + w), r1(pvy + 140), fmt(PV.r1)) +
+        dimV(r1(pvx0 - 30), OY, r1(pvy), fmt(PV.turn)) + '<text x="' + r1(pvx1 - 16) + '" y="' + r1(pvy + 60) + '" text-anchor="end">PVC pipe</text></g>';
+    }
 
     /* each section: oy is its top in the sheet, sx is its side view shifted right by its drop */
     S.forEach(function (sc, si) {
@@ -528,7 +583,9 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
         '<span class="pill ' + (spanOk ? 'ok' : 'warn') + '">' + (spanOk ? 'Within the ~1,000 mm guide' : 'Over the ~1,000 mm guide') + '</span></div>' +
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
         '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>' +
-      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' per bearer, ' + fmt(m.bs) + ' and ' + fmt(m2.bs) + ' mm centres</span></div>' +
+      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' and ' + P2.npp + ' per bearer, ' + fmt(m.bs) + ' and ' + fmt(m2.bs) + ' mm centres</span></div>' +
+      '<div class="chip"><span class="k">PVC pipe</span><span class="v">' + fmt(PV.d) + '<small>mm</small></span><span class="s">' + fmt(PV.r0) + ' mm from the right edge, turning at ' + fmt(PV.turn) + ' mm to run ' + fmt(PV.r1) + ' mm from the right edge. Nearest deck post ' + fmt(PVG.nearD.g) + ' mm, nearest stringer ' + fmt(PVG.nearT) + ' mm, in plan</span>' +
+        '<span class="pill ' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'ok' : 'warn') + '">' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'Clear of all posts and stringers' : 'Passes under a deck post or stringer') + '</span></div>' +
       '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(boardLen(0)) + ' and ' + fmt(boardLen(1)) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +
       '<div class="chip"><span class="k">Steps</span><span class="v">' + NSTEPS + '</span><span class="s">' + fmt(GOING) + ' mm going, ' + strips(GOING, P).length + ' boards laid across each' + cutNote(strips(GOING, P)) + '</span></div>' +
       '<div class="chip"><span class="k">Stringers</span><span class="v">' + ST.ns + '</span><span class="s">' + fmt(ST.sd) + ' x ' + fmt(ST.t) + ' mm H3 at ' + fmt(SG.c) + ' mm centres, about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. Fixed to a ledger on the end posts of section 2, landing on a concrete footing</span>' +
@@ -554,11 +611,14 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
       var hit = g.hasAttribute('data-r') ? sel && sel.i % S[sel.s].p.npp === attr(g, 'data-r') : sel && sel.i === attr(g, 'data-q');
       g.classList.toggle('on', !!sel && sel.k === 'd' && attr(g, 'data-s') === sel.s && !!hit);
     });
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .pipe'), function (g) {
+      g.classList.toggle('on', !!sel && sel.k === 'v');
+    });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .stringer'), function (g) {
       g.classList.toggle('on', !!sel && sel.k === 't' && attr(g, 'data-t') === sel.i);
     });
-    var text = 'Hover, tap or tab to a joist, bearer, stringer or post to read its position.';
-    if (sel) text = (sel.k === 't' ? stringerLabel(sel.i) : sel.k === 'j' ? joistLabel(sel.s, sel.i) : (sel.k === 'b' ? bearerLabel(sel.s, sel.i) : (sel.k === 'd' ? dpostLabel(sel.s, sel.i) : postLabel()))) + '.';
+    var text = 'Hover, tap or tab to a joist, bearer, stringer, post or the pipe to read its position.';
+    if (sel) text = (sel.k === 'v' ? pipeLabel() : sel.k === 't' ? stringerLabel(sel.i) : sel.k === 'j' ? joistLabel(sel.s, sel.i) : (sel.k === 'b' ? bearerLabel(sel.s, sel.i) : (sel.k === 'd' ? dpostLabel(sel.s, sel.i) : postLabel()))) + '.';
     $('readout').textContent = text;
   }
 
@@ -570,6 +630,9 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   }
 
   function wire() {
+    Array.prototype.forEach.call(document.querySelectorAll('#sheet .pipe'), function (g) {
+      bind(g, function () { return { k: 'v', i: 0, s: 0 }; });
+    });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .stringer'), function (g) {
       var i = attr(g, 'data-t');
       bind(g, function () { return { k: 't', i: i, s: 2 }; });
@@ -604,6 +667,7 @@ svg .post.on rect, svg .post:hover rect { fill: var(--post-hi); }
   $('t-p').addEventListener('change', render);
   $('t-d').addEventListener('change', render);
   $('t-f').addEventListener('change', render);
+  $('t-v').addEventListener('change', render);
   drawText();
   render();
 })();

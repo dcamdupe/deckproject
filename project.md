@@ -67,7 +67,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Drop:** 176.4 mm below section 1, measured between board tops (one of the 5 equal falls in section 3.1b). It was 152.9 mm before 16 October 2026 and 200 mm before 11 October 2026.
 - **Joists:** 4 joists, 90 x 45 mm, at 343.33 mm centres (22.5, 365.83, 709.17 and 1052.5 mm from the top of the section). Joist 4, at the bottom edge of the section where it steps down, is a double joist, with the second member against its inward face (985 to 1030 mm), so 5 joist lengths in total. No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed), on the same lines as section 1, 1075 mm long.
-- **Deck posts:** 9 posts, three per bearer, at 45, 537.5 and 1030 mm along the section, so the bearers span 492.5 mm. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
+- **Deck posts:** 6 posts, two per bearer, at 45 and 1030 mm along the section, so the bearers span 985 mm (three per bearer until 16 October 2026). This is shorter than section 1's 1330 mm bearer spans; neither is checked against span tables. Section 2 has its own posts at the step; they are not shared with section 1's end posts.
 - **Floorboards:** same 14-board layout as section 1, plus its own step edge board and face boards.
 - **Not yet decided:** whether the two sections share posts at the junction.
 
@@ -100,6 +100,13 @@ A planning and design record for a low-level timber deck beside a house. It capt
   - Finish is powder-coated steel, with no mention of galvanising. Load rating, steel thickness and fixing details were not on the listing; check the manufacturer's installation guide.
 - **To check:** a 176.4 mm fall is inside the NCC stair riser range of 115 to 190 mm, and twice the fall plus the going is 597.8 mm, inside the 550 to 700 mm range. A 245 mm going is inside the 240 to 355 mm range. The 882 mm drop is under the 1 m limits noted in section 3.3.
 
+### 3.1c PVC pipe under the deck
+
+- **Pipe:** a 90 mm PVC pipe runs under the deck (added 16 October 2026). Its depth below the frame is not set.
+- **Route, measured to its centreline from the right-hand edge:** it enters at the top of section 1, 115 mm from the right edge. 600 mm from the top it turns 90 degrees towards the middle and runs across to 1020 mm from the right edge (854 mm from the left). It then turns 90 degrees again and runs down the rest of the deck, through section 2 and under the steps, to the end of the deck. That is about 5465 mm along its centreline.
+- **Clashes, in plan:** the pipe passes under the deck posts on the middle bearer: its edge is 7 mm inside them in both sections. It is 5.5 mm clear of the middle stringer and 627 mm from the structural post. It crosses under the bearers and the step footing. The posts have not been moved yet.
+- **Drawing:** shown in the top view with its own toggle, as the bottom layer under the posts, frame and boards, so turn the floorboards off to see it. Its dimensions stay on top. It is not drawn in the side view.
+
 ### 3.2 Posts, footings and treatment
 
 - **Stirrups:** Bolt-down or cast-in stirrups are the approach being considered for deck posts, with the stirrup at least 75 mm above finished ground.
@@ -129,7 +136,7 @@ An interactive SVG page was built and published as a private artifact (Version 6
 
 ```js
 var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, bw: 135, bh: 20, bg: 2 };
-/* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3] */
+/* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3], npp: 2 (two posts per bearer) */
 /* PS copies P for each step with L: GOING, pt: null and dbl: [] */
 var ST = { ns: 5, sd: 290, t: 65, ld: 190, pad: 80, maxC: 460 }; /* stringers: count, stock depth, thickness, ledger depth, footing depth, accepted max centres */
 var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2); /* measured drop, split into equal falls */
