@@ -41,8 +41,7 @@ Prices from Bunnings, per 4.2 m length (assumed). Quantities are from the summar
 | Post timber | 88 x 88 | $120.00 | 4 | $480.00 |
 | Decking boards | 135 x 20 | to be set | 21 | to be set |
 | Decking screws, stainless steel | box of 500 | $54.95 | 1 (462 needed) | $54.95 |
-| Framing anchors: Pryda Multigrip 100 x 35 mm | each | $0.83 | 53 | $43.99 |
-| Post-to-bearer fixing: Pryda Multigrip 100 x 35 mm (substitute, see note) | each | $0.83 | 38 (2 per post) | $31.54 |
+| Pryda Multigrip 100 x 35 mm | each | $0.83 | 91 (53 framing anchors, 38 post-to-bearer, see note) | $75.53 |
 | Pryda timber connector nails 35 x 3.15 mm | 1 kg pack | $22.45 | 2 | $44.90 |
 | Paslode 75 x 3.15 mm galvanised bullet head nails | 500 g, 90 pack | $10.23 | 1 (42 needed) | $10.23 |
 | Galintel galvanised bolt-down stringer bracket | each | $9.70 | 5 | $48.50 |
