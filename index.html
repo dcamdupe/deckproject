@@ -211,7 +211,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
+  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
   /* DROP is the measured fall to the grass, split into equal falls: one between the sections, then one per step and one to the ground */
   var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2);
   function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
@@ -362,7 +362,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
   }
   function dpostLabel(si, q) {
     var p = S[si].p, mm = S[si].m, d = mm.dp[q];
-    return secName(si) + 'Deck post ' + (q + 1) + ' of ' + mm.dp.length + ': ' + fmt(p.dps) + ' x ' + fmt(p.dps) + ' mm (assumed) under bearer ' + (d.j + 1) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top of the section. Height and footing are not set yet';
+    return secName(si) + 'Deck post ' + (q + 1) + ' of ' + mm.dp.length + ': ' + fmt(p.dps) + ' x ' + fmt(p.dps) + ' mm (assumed) under bearer ' + (d.j + 1) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top of the section, ' + fmt(p.dpl) + ' mm long (assumed). Footing is not set yet';
   }
   function stringerLabel(i) {
     return 'Stringer ' + (i + 1) + ' of ' + ST.ns + ': centre ' + fmt(SG.xs[i]) + ' mm from the left edge, cut from ' + fmt(ST.sd) + ' x ' + fmt(ST.t) + ' mm H3 with about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. It runs from the ledger at the end of section 2 down to the footing';
@@ -434,7 +434,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
         var pl = 30;
         for (i = 0; i < p.npp; i++) {
           var sy = oy + (mm.dp[i].y - p.dps / 2) * K;
-          o += '<g class="dpost' + (sel && sel.k === 'd' && sel.s === si && sel.i % p.npp === i ? ' on' : '') + '" data-s="' + si + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side. Its height is not set yet.</title>' +
+          o += '<g class="dpost' + (sel && sel.k === 'd' && sel.s === si && sel.i % p.npp === i ? ' on' : '') + '" data-s="' + si + '" data-r="' + i + '" role="img" aria-label="Deck post seen from the side, below the bearer"><title>Deck post seen from the side, ' + fmt(p.dpl) + ' mm long (assumed).</title>' +
             '<rect class="open" x="' + r1(sdx) + '" y="' + r1(sy) + '" width="' + r1(pl) + '" height="' + r1(dsz) + '"/>' +
             '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy) + '" x2="' + r1(sdx + pl) + '" y2="' + r1(sy) + '"/>' +
             '<line class="edge" x1="' + r1(sdx) + '" y1="' + r1(sy + dsz) + '" x2="' + r1(sdx + pl) + '" y2="' + r1(sy + dsz) + '"/>' +

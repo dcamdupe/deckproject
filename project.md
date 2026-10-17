@@ -11,7 +11,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Structural post:** A 90 x 90 mm post passes through the deck and supports the level above. It is not an edge post for the deck.
 - **Future work (the owner has said these come later):**
   - Steps. There will be several, for example a 2 m first deck section, a step down to a 1 m section, then more steps.
-  - Deck posts, footings and stirrups.
+  - Deck posts and footings.
   - More detail added to the drawing over time.
 - **Use case:** A push lawnmower will be moved up and down the steps, so the step edges need protection (ramps were discussed).
 - **Reference the owner used:** Bunnings Workshop discussion 45715 (low-level, single-layer deck).
@@ -27,7 +27,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 | Structural post size | 90 x 90 mm |
 | Structural post position | 2000 mm from the top of the deck, 258 mm from the right-hand side |
 | Council approval | Owner states the deck is under 1 m high |
-| Stirrup style being considered | Pryda full stirrup post anchors (for example 65x90 mm M10, and the high-wind 600x90 mm M12) |
+| Post fixing | Posts set into concrete footings, with the in-ground part painted with bitumen (stirrups were considered and dropped, 17 October 2026) |
 
 ## 3. Decisions made
 
@@ -51,7 +51,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Deck posts:** 9 posts, 90 x 90 mm (assumed size), three under each bearer, at 45, 1375 and 2655 mm along the section (centres 1330 and 1280 mm). The end posts were set back 50 mm from the end of the section on 16 October 2026, so their far face is 100 mm from the end; the other posts did not move.
   - Along the length: centres at 45, 1500 and 2955 mm from the top, so the bearers span 1455 mm between post centres. This span is not yet checked against AS 1684.
   - Across the width: centres at 45, 937 and 1829 mm from the left. Edge posts are kept flush inside the deck outline rather than centred on the edge bearers.
-  - Height, footings and stirrups are still open.
+  - Height and footings are still open.
 - **Floorboards:** 135 x 20 mm with 2 mm gaps, running the 2750 mm length, across the joists.
   - 14 boards across the 1874 mm width: 13 full boards and a last board on the right-hand side cut down to 93 mm.
   - The structural post (1526 to 1616 mm from the left) falls entirely within board 12 (1507 to 1642 mm), so only that board needs cutting around it.
@@ -80,7 +80,7 @@ A planning and design record for a low-level timber deck beside a house. It capt
 - **Step boards:** two boards laid across the width on each step, in the same direction as the section edge boards: one full 135 mm board and one ripped to 108 mm, with a 2 mm gap. Two face boards (135 mm and 19.4 mm) on each face, tucked under the overhanging board above. Each step's boards are shifted 20 mm forward to make that overhang, so the going is still 245 mm.
 - **Stringers:** the steps are carried by 5 cut timber stringers at 452.25 mm centres across the width (387 mm clear between them), in place of the joists, bearers and posts first drawn under each step.
   - 452.25 mm is 2 mm over the 450 mm limit used for the joists; the owner accepted spacing a little over 450 mm (11 October 2026) to use 5 stringers, not 6.
-  - Stock is 290 x 65 mm, H3 treated, which the owner can buy. With a 176.4 mm fall and 245 mm going each notch is about 143 mm deep, leaving about 147 mm under the notches. Each stringer is about 1.1 m along the slope, so allow 1.5 m of stock each. This is geometry only, not a span-table check.
+  - Stock is 290 x 65 mm, H3 treated, which the owner can buy. With a 176.4 mm fall and 245 mm going each notch is about 143 mm deep, leaving about 147 mm under the notches. Each stringer is about 860 mm along the slope, so allow 1.2 m of stock each. This is geometry only, not a span-table check.
   - Cutting: a standard 184 mm circular saw cuts about 63 mm deep, so each cut in the 65 mm stock needs finishing by hand. Stop the saw short of each inside corner, and seal every cut face with preservative.
   - Top: the stringers butt against a 190 x 45 mm ledger (assumed) across the width, fixed to the faces of section 2's three end posts, because the stringers start below section 2's joists.
   - Bottom: the stringer feet land on a concrete pad or strip footing at the ground, held off the soil on brackets, because H3 is not rated for ground contact. The footing size is not set.
@@ -109,9 +109,12 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 ### 3.2 Posts, footings and treatment
 
-- **Stirrups:** Bolt-down or cast-in stirrups are the approach being considered for deck posts, with the stirrup at least 75 mm above finished ground.
-  - An earlier statement of 30 to 50 mm above concrete was wrong and has been corrected.
-- **Treatment class:** H4 versus H5 was discussed. H5 is the heavier treatment for in-ground or severe-decay contact. Check AS 1604 and the supplier's tags before buying.
+- **Posts in the ground (decided 17 October 2026):** the deck posts are set into concrete footings, with no stirrups. The part of each post that goes into the ground and concrete is painted with bitumen paint, carried a little above finished ground level.
+  - Stirrups (bolt-down or cast-in, for example Pryda full stirrup post anchors) were considered first and dropped.
+  - Usual practice is a footing hole about 450 to 600 mm deep on firm natural soil, with the top of the concrete sloped away from the post so water runs off. Footing size and depth are not set yet.
+  - Bitumen paint helps but does not replace in-ground treatment, so the posts should be H5 (or at least H4) treated, with any cut ends that go into the ground resealed.
+  - The 800 mm post length used in `order.md` was assumed for stirrups. Posts set in the ground need to be longer, by the depth they go into the footing, so the length needs revisiting once footing depth and deck height are set.
+- **Treatment class:** H4 versus H5 was discussed. H5 is the heavier treatment for in-ground or severe-decay contact, and suits posts set in the ground. Check AS 1604 and the supplier's tags before buying.
 - **Posts against a house:** The question of attaching to the house versus concreting posts in was discussed for the deck's supporting posts, not the structural post.
 
 ### 3.3 Approvals and clearances
@@ -135,7 +138,7 @@ An interactive SVG page was built and published as a private artifact (Version 6
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
+var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
 /* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3], npp: 2 (two posts per bearer), pf: 50, pe: 0 */
 /* pf, pe: how far the first and last rows of deck posts are set back from the ends of the section */
 /* PS copies P for each step with L: GOING, pt: null and dbl: [] */
@@ -150,6 +153,22 @@ var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
   - Post left edge: `postX = W - pr - ps = 1526`.
 - **Not yet checked:** the rendered page has never been inspected visually. Its script passed a syntax check only.
 
+## 4a. Materials order
+
+- `order.md` holds the materials list for the build. Section 1 of it is the cut list: every framing member and decking board, grouped by type and cut length, with counts and totals. Created 17 October 2026.
+- Section 2 of it is the fasteners list. Bearers sit on top of the posts and are held with galvanised post-to-bearer brackets, one per deck post (17 October 2026). Housing and bolting, and a double bearer either side of the post, were discussed as alternatives.
+  - Joists are held to the bearers with one galvanised framing anchor at every crossing, 44 in all (17 October 2026). Skew nailing alone was ruled out because it holds much less against wind uplift.
+  - Double joists: the two members are nailed together, 16 nails in all (8 per double joist, 2 staggered rows at about 600 mm) (17 October 2026).
+  - Decking screws: 2 at every board-to-joist and board-to-stringer crossing (192 crossings, 384 screws), plus 6 per step face for the facing (30) (17 October 2026). The 2 edge boards, which cross no joists, have an estimated 10 screws each (20).
+- Section 3 of it, Other, has placeholders for concrete and bitumen paint (17 October 2026); quantities are not set. The bitumen paint is for the in-ground part of the deck posts. Also has the stringer concrete pad, 1874 x 420 x 80 mm as drawn (about 0.063 m3).
+- Wall fixing (17 October 2026): one galvanised bracket and 2 masonry anchors hold the top end of the right-hand bearer in section 1 to the house, assuming the house is beside that end. Which edge the house is on and the wall type are still to be confirmed.
+- Stringer feet (17 October 2026): one galvanised stand-off bracket per stringer, each with 2 masonry anchors into the pad and 2 bolts or coach screws into the stringer.
+- A Summary section at the top of it lists what to buy, one row per timber type, fastener and attachment. Timber is counted in 4.2 m stock lengths (assumed, 17 October 2026), with the cut lengths fitted into them and no waste allowance.
+- The cut list is worked out from the drawing's model in `index.html` (`P`, `P2`, `PS`, `ST` and the stringer geometry), not measured off the drawing.
+- **Keep it in step:** when a dimension, member count, post layout or step change is made to the design, update `order.md` in the same change and its "Last updated" date.
+- Deck posts are assumed to be 800 mm long (17 October 2026) until the post heights are set (`dpl` in `P`).
+- Still to add: blocking under the edge boards, the extra post and wall fixing near the pipe, the remaining fasteners, and a later section for footings, concrete and finishes. A waste allowance on the stock lengths is still to be decided.
+
 ## 5. Assumptions and caveats
 
 - Joist and bearer sizes and spans come from community guidance (joists at 450 mm centres or closer, a 90 x 45 mm joist spanning about 1000 mm). They are not taken from AS 1684 span tables.
@@ -161,7 +180,7 @@ var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
 ## 6. Open questions and next steps
 
 1. Steps: layout, riser and tread sizes, board direction, and edge treatment.
-2. Deck posts, footings and stirrup selection, and how posts and joists are managed across the stepped sections.
+2. Deck post length and footing size and depth, and how posts and joists are managed across the stepped sections.
 3. Final member sizes and spans confirmed against AS 1684.
 4. Under-floor clearance, subfloor ventilation and termite inspection access.
 5. Lawnmower access and edge protection (ramp options).
@@ -171,5 +190,6 @@ var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
 
 ```
 project.md          this file
+order.md            materials order and cut list
 drawing/            interactive SVG deck-frame page (HTML)
 ```
