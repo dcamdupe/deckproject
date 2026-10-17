@@ -35,20 +35,21 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 - **Joists:** 90 x 45 mm at no more than 450 mm centres.
   - 8 full-length joists plus one short joist (6a) beside the structural post.
-  - Joist centre positions: 22.5, 495.5, 923.5, 1351.5, 1779.5, 2207.5, 2555.4 and 2977.5 mm.
-  - Joist 6 is set 20 mm clear of the post's top face. Joists 2 to 5 are spread evenly between the joist 1 doubler and joist 6: 383 mm clear gaps, 428 mm centres.
-  - Joists 7 and 8 stay on the original 422.14 mm grid. Joist 6 to 7 is 347.9 mm centres.
-  - Joist 6a is a short joist 20 mm clear of the post's bottom face (centre 2382.5 mm), running from the central bearer to the right edge, 959.5 mm long.
-  - Joist 1 is a double joist: a second 90 x 45 mm member fixed against its inward face (occupying 45 to 90 mm), so 9 joist lengths in total. No other joist moves.
+  - Joist centre positions: 22.5, 445.5, 823.5, 1201.5, 1579.5, 1957.5, 2341.1 and 2727.5 mm (for the 2750 mm section).
+  - Joist 6 is set 20 mm clear of the post's top face. Joists 2 to 5 are spread evenly between the joist 1 doubler and joist 6, at 378 mm centres.
+  - Joists 7 and 8 share the space below the post: joist 6 to 7 is 383.6 mm centres and 7 to 8 is 386.4 mm.
+  - Joist 6a is a short joist 20 mm clear of the post's bottom face (centre 2132.5 mm), running from the central bearer to the right edge, 959.5 mm long.
+  - Joists 1 and 2 are double joists: a second 90 x 45 mm member fixed against each one's inward face (45 to 90 mm and 468 to 513 mm), so 10 joist lengths in total. Joist 2 was doubled on 17 October 2026 for the pipe corner (section 3.1d). No other joist moves.
 - **Bearers:** 3 bearers, 140 x 45 mm (assumed size), under the joists.
   - Bearer centres: 22.5, 937 and 1851.5 mm, about 914.5 mm apart.
   - This is within the roughly 1000 mm span guide for a 90 x 45 mm joist.
+  - At the pipe corner the middle and right bearers are split or shortened and a fourth, corner bearer is added (section 3.1d).
 - **Joists sit on top of the bearers** and are continuous. The earlier plan of bearers beside the joists was dropped.
 - **Structural post:** The post is not moved to suit the framing. The joists are laid out around it (joist 6 and short joist 6a sit 20 mm either side); no bearer moves.
   - Post occupies x 1526 to 1616 mm from the left and y 2000 to 2090 mm from the top.
   - Clearances: 20 mm to joist 6 (above), 20 mm to joist 6a (below), 213 mm to the right bearer, 566.5 mm to the centre bearer.
   - The post sits between joists 6 and 6a.
-- **Deck posts:** 9 posts, 90 x 90 mm (assumed size), three under each bearer, at 45, 1375 and 2655 mm along the section (centres 1330 and 1280 mm). The end posts were set back 50 mm from the end of the section on 16 October 2026, so their far face is 100 mm from the end; the other posts did not move.
+- **Deck posts:** 13 posts, 90 x 90 mm (assumed size). Three under each bearer line at 45, 1375 and 2655 mm along the section (centres 1330 and 1280 mm), except that the right bearer's first post is at 710 mm, plus 4 more at the pipe corner (section 3.1d). The end posts were set back 50 mm from the end of the section on 16 October 2026, so their far face is 100 mm from the end; the other posts did not move.
   - Along the length: centres at 45, 1500 and 2955 mm from the top, so the bearers span 1455 mm between post centres. This span is not yet checked against AS 1684.
   - Across the width: centres at 45, 937 and 1829 mm from the left. Edge posts are kept flush inside the deck outline rather than centred on the edge bearers.
   - Height and footings are still open.
@@ -104,14 +105,28 @@ A planning and design record for a low-level timber deck beside a house. It capt
 
 - **Pipe:** a 90 mm PVC pipe runs under the deck (added 16 October 2026). Its depth below the frame is not set.
 - **Route, measured to its centreline from the right-hand edge:** it enters at the top of section 1, 115 mm from the right edge. 600 mm from the top it turns 90 degrees towards the middle and runs across to 1020 mm from the right edge (854 mm from the left). It then turns 90 degrees again and runs down the rest of the deck, through section 2 and under the steps, to the end of the deck. That is about 5465 mm along its centreline.
-- **Clashes, in plan:** the pipe passes under the deck posts on the middle bearer: its edge is 7 mm inside them in both sections. It is 5.5 mm clear of the middle stringer and 627 mm from the structural post. It crosses under the bearers and the step footing. The posts have not been moved yet.
+- **Depth:** the top of the pipe is about 160 mm below the top of the deck at the top right corner (measured by the owner, 17 October 2026). Only boards and joists (110 mm) fit above it there, with about 50 mm to spare; a bearer (250 mm down to its underside) does not.
+- **Clashes, in plan:** the top-right corner is reframed around the pipe (section 3.1d). The pipe still passes under the deck posts on the middle bearer where it runs down the deck: its edge is 7 mm inside them in both sections. It is 5.5 mm clear of the middle stringer and 627 mm from the structural post. It crosses under the bearers further down and the step footing. Its depth along the rest of its run is not known, so the bearer crossings there are not checked.
 - **Drawing:** shown in the top view with its own toggle, as the bottom layer under the posts, frame and boards, so turn the floorboards off to see it. Its dimensions stay on top. It is not drawn in the side view.
+
+### 3.1d Pipe corner (option A, decided 17 October 2026)
+
+- **Why:** at the top right corner only joists fit above the pipe (section 3.1c). The house wall there is single brick supporting another deck's joists, so nothing can be fixed to it. Lowering the pipe was suggested as the cleaner fix and is worth pricing.
+- **Corner bearer:** a 535 mm bearer left of the pipe, centre 1649 mm from the left edge, from the top to 535 mm, on 2 posts at 45 and 490 mm. Its posts are 20 mm clear of the pipe.
+- **Middle bearer:** split into a top piece (0 to 535 mm) and a lower piece (665 to 2750 mm), each stopping 20 mm short of where the pipe runs across. Extra posts at 490 and 710 mm, either side of the gap.
+- **Right bearer:** starts 665 mm from the top, below the pipe's turn, with its first post at 710 mm. The old top-right post, which sat on the pipe, is removed.
+- **Joists 1 and 2:** both doubled, sitting on the left bearer, the middle bearer's top piece and the corner bearer, then cantilevering 225 mm past the corner bearer over the pipe. They are 1829 mm long and stop against the edge joist.
+- **Edge joist:** 90 x 45 mm at joist level along the right edge, 801 mm long, from the top to joist 3. It ties the cantilevered joist ends together and its lower end sits on the right bearer.
+- **Noggins:** 2, between joists 1, 2 and 3 over the pipe centreline (333 and 288 mm long).
+- **To check:** the 225 mm cantilever is over the rule of thumb of a quarter of the backspan (about 180 mm here), which is why joist 2 is doubled and the edge joist added. Have it checked by an engineer or builder.
+- **Footings:** the posts at 490 and 710 mm and the corner bearer posts sit close to the pipe, so their footings must not undermine it.
 
 ### 3.2 Posts, footings and treatment
 
 - **Posts in the ground (decided 17 October 2026):** the deck posts are set into concrete footings, with no stirrups. The part of each post that goes into the ground and concrete is painted with bitumen paint, carried a little above finished ground level.
   - Stirrups (bolt-down or cast-in, for example Pryda full stirrup post anchors) were considered first and dropped.
-  - Usual practice is a footing hole about 450 to 600 mm deep on firm natural soil, with the top of the concrete sloped away from the post so water runs off. Footing size and depth are not set yet.
+  - Footings: 300 mm round holes, 600 mm deep (assumed, 17 October 2026), on firm natural soil, with the top of the concrete sloped away from the post so water runs off. About 0.038 m3 per post, ordered as 4 x 20 kg premix bags per post (76 bags for 19 posts).
+  - A 100 mm layer of 20 mm blue metal goes in the bottom of each hole for drainage, with the post standing on it (17 October 2026): about 10 x 20 kg bags for 19 holes. It leaves 500 mm of concrete, about 3 bags per post, so the 4 bags per post have about one spare.
   - Bitumen paint helps but does not replace in-ground treatment, so the posts should be H5 (or at least H4) treated, with any cut ends that go into the ground resealed.
   - The 800 mm post length used in `order.md` was assumed for stirrups. Posts set in the ground need to be longer, by the depth they go into the footing, so the length needs revisiting once footing depth and deck height are set.
 - **Treatment class:** H4 versus H5 was discussed. H5 is the heavier treatment for in-ground or severe-decay contact, and suits posts set in the ground. Check AS 1604 and the supplier's tags before buying.
@@ -138,10 +153,11 @@ An interactive SVG page was built and published as a private artifact (Version 6
 - **Key constants:**
 
 ```js
-var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
+var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0, 1], cn: true, dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
 /* P2 copies P for section 2 with L: 1075, pt: null (no structural post) and dbl: [3], npp: 2 (two posts per bearer), pf: 50, pe: 0 */
 /* pf, pe: how far the first and last rows of deck posts are set back from the ends of the section */
-/* PS copies P for each step with L: GOING, pt: null and dbl: [] */
+/* PS copies P for each step with L: GOING, pt: null and dbl: []; cn: false in both, so only section 1 has the pipe corner */
+/* CN = { cl: 20 }: clearance from the pipe to the bearers and posts at the corner */
 var ST = { ns: 5, sd: 290, t: 65, ld: 190, pad: 80, maxC: 460 }; /* stringers: count, stock depth, thickness, ledger depth, footing depth, accepted max centres */
 var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2); /* measured drop, split into equal falls */
 var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
@@ -158,16 +174,18 @@ var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
 - `order.md` holds the materials list for the build. Section 1 of it is the cut list: every framing member and decking board, grouped by type and cut length, with counts and totals. Created 17 October 2026.
 - Section 2 of it is the fasteners list. Bearers sit on top of the posts and are held with galvanised post-to-bearer brackets, one per deck post (17 October 2026). Housing and bolting, and a double bearer either side of the post, were discussed as alternatives.
   - Joists are held to the bearers with one galvanised framing anchor at every crossing, 44 in all (17 October 2026). Skew nailing alone was ruled out because it holds much less against wind uplift.
-  - Double joists: the two members are nailed together, 16 nails in all (8 per double joist, 2 staggered rows at about 600 mm) (17 October 2026).
+  - Double joists: the two members are nailed together, 8 nails per double joist in 2 staggered rows at about 600 mm, 24 for the 3 double joists (17 October 2026).
+  - Pipe corner: 5 framing anchors and 10 nails for the edge joist, 8 nails for the noggins.
   - Decking screws: 2 at every board-to-joist and board-to-stringer crossing (192 crossings, 384 screws), plus 6 per step face for the facing (30) (17 October 2026). The 2 edge boards, which cross no joists, have an estimated 10 screws each (20).
-- Section 3 of it, Other, has placeholders for concrete and bitumen paint (17 October 2026); quantities are not set. The bitumen paint is for the in-ground part of the deck posts. Also has the stringer concrete pad, 1874 x 420 x 80 mm as drawn (about 0.063 m3).
-- Wall fixing (17 October 2026): one galvanised bracket and 2 masonry anchors hold the top end of the right-hand bearer in section 1 to the house, assuming the house is beside that end. Which edge the house is on and the wall type are still to be confirmed.
+- Section 3 of it, Other, has the concrete, blue metal and bitumen paint. The bitumen paint is Gripset Betta bitumen rubber waterproofing membrane, 2 x 4 L tins (estimated), for the in-ground part of the deck posts. Also has the stringer concrete pad, 1874 x 420 x 80 mm as drawn (about 0.063 m3).
+- Wall fixing: dropped (17 October 2026). The wall at the pipe corner is single brick carrying another deck's joists, so the deck is not fixed to it.
 - Stringer feet (17 October 2026): one galvanised stand-off bracket per stringer, each with 2 masonry anchors into the pad and 2 bolts or coach screws into the stringer.
 - A Summary section at the top of it lists what to buy, one row per timber type, fastener and attachment. Timber is counted in 4.2 m stock lengths (assumed, 17 October 2026), with the cut lengths fitted into them and no waste allowance.
+- A Bunnings pricing section follows the summary, with costs per line and a running total ($2,485.01 on 17 October 2026, excluding decking boards). Fastener prices came from Bunnings search listings. No post-to-bearer bracket was found there, so it is priced as 2 Pryda Multigrips per post; not yet agreed.
 - The cut list is worked out from the drawing's model in `index.html` (`P`, `P2`, `PS`, `ST` and the stringer geometry), not measured off the drawing.
 - **Keep it in step:** when a dimension, member count, post layout or step change is made to the design, update `order.md` in the same change and its "Last updated" date.
 - Deck posts are assumed to be 800 mm long (17 October 2026) until the post heights are set (`dpl` in `P`).
-- Still to add: blocking under the edge boards, the extra post and wall fixing near the pipe, the remaining fasteners, and a later section for footings, concrete and finishes. A waste allowance on the stock lengths is still to be decided.
+- Still to add: blocking under the edge boards, the remaining fasteners, and a later section for footings, concrete and finishes. A waste allowance on the stock lengths is still to be decided.
 
 ## 5. Assumptions and caveats
 

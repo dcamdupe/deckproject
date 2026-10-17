@@ -211,16 +211,21 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0], dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
+  var P = { W: 1874, L: 2750, t: 45, d: 90, maxC: 450, nb: 3, bt: 45, bd: 140, ps: 90, pt: 2000, pr: 258, pg: 20, dbl: [0, 1], cn: true, dps: 90, dpl: 800, npp: 3, pf: 0, pe: 50, bw: 135, bh: 20, bg: 2 };
   /* DROP is the measured fall to the grass, split into equal falls: one between the sections, then one per step and one to the ground */
   var DROP = 882, GOING = 245, NSTEPS = 3, FALL = DROP / (NSTEPS + 2);
   function sub(o) { var r = {}, k; for (k in P) r[k] = P[k]; for (k in o) r[k] = o[k]; return r; }
   /* section 2 and the steps have no structural post and a double joist at their bottom edge */
-  var P2 = sub({ L: 1075, pt: null, dbl: [3], npp: 2, pf: 50, pe: 0 });
-  var PS = sub({ L: GOING, pt: null, dbl: [], pf: 0, pe: 0 });
+  var P2 = sub({ L: 1075, pt: null, dbl: [3], cn: false, npp: 2, pf: 50, pe: 0 });
+  var PS = sub({ L: GOING, pt: null, dbl: [], cn: false, pf: 0, pe: 0 });
   /* stringers carry the steps: ns across the width, cut from sd x t stock (the owner's 290 x 65 H3), fixed to a ledger (ld deep) and landing on a footing.
      maxC is the owner's accepted limit, a little over the 450 mm joist limit */
   var ST = { ns: 5, sd: 290, t: 65, ld: 190, pad: 80, maxC: 460 };
+  /* PVC pipe under the deck, measured from the right edge: down turn mm, across to r1, then down the rest of the deck */
+  var PV = { d: 90, r0: 115, turn: 600, r1: 1020 };
+  /* corner over the pipe (option A, section 1): only joists fit above the pipe, so bearers and posts stop cl short of it,
+     a corner bearer sits left of it and the joists over it cantilever to an edge joist, braced with noggins */
+  var CN = { cl: 20 };
   var K = 0.27, OX = 176, OY = 74, SX = 748, VBW = 1040, GUIDE_SPAN = 1000;
   var sel = null;
 
@@ -280,6 +285,23 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
     for (q = 1; q < p.npp; q++) bs.push(dp[q].y - dp[q - 1].y);
     /* floorboards across the width; the last one is cut down to fit */
     var fb = strips(p.W, p);
+    /* bearer pieces along the length, one per bearer line unless the pipe corner splits them */
+    var bars = [], jl = xs.map(function () { return p.W; }), rim = null, nog = [];
+    for (j = 0; j < p.nb; j++) bars.push({ j: j, x: ys[j], y0: 0, y1: p.L });
+    if (p.cn) {
+      /* the pipe's cross run lies between ga and gb, clearance included; the corner bearer centre cx keeps its posts clear of the pipe's first run */
+      var ga = PV.turn - PV.d / 2 - CN.cl, gb = PV.turn + PV.d / 2 + CN.cl, cx = p.W - PV.r0 - PV.d / 2 - CN.cl - p.dps / 2, kr;
+      bars = [bars[0], { j: 1, x: ys[1], y0: 0, y1: ga, part: 'top piece' }, { j: 1, x: ys[1], y0: gb, y1: p.L, part: 'lower piece' },
+        { j: 2, x: ys[2], y0: gb, y1: p.L, part: 'starts below the pipe' }, { j: p.nb, x: cx, y0: 0, y1: ga, corner: true }];
+      /* the right bearer's first post moves below the pipe; posts either side of the middle bearer's gap; two under the corner bearer */
+      dp[2 * p.npp].y = gb + p.dps / 2;
+      dp.push({ j: 1, x: ys[1], y: ga - p.dps / 2 }, { j: 1, x: ys[1], y: gb + p.dps / 2 }, { j: p.nb, x: cx, y: p.dps / 2 }, { j: p.nb, x: cx, y: ga - p.dps / 2 });
+      /* joists that start above the right bearer end against the edge joist, which runs down to the first full joist */
+      for (kr = 0; kr <= n && xs[kr] - p.t / 2 < gb; kr++) jl[kr] = p.W - p.t;
+      rim = { x0: p.W - p.t, y0: 0, y1: xs[kr] - p.t / 2, k: kr, cx: cx, ga: ga, gb: gb };
+      /* noggins over the pipe centreline, between each pair of joist members the edge joist carries */
+      for (i = 1; i < fs.length && fs[i] <= xs[kr]; i++) if (fs[i] - fs[i - 1] > p.t + 1e-6) nog.push({ x: p.W - PV.r0, y0: fs[i - 1] + p.t / 2, y1: fs[i] - p.t / 2 });
+    }
     var ex = null, nearJ = Infinity, nearB = Infinity, between = '';
     if (hasPost) {
       /* short joist below the post, from the central bearer to the right edge */
@@ -289,7 +311,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       for (i = 0; i <= n; i++) nearJ = Math.min(nearJ, gap(xs[i] - p.t / 2 + Math.min(ds[i], 0), xs[i] + p.t / 2 + Math.max(ds[i], 0), p.pt, p.pt + p.ps));
       for (j = 0; j < p.nb; j++) nearB = Math.min(nearB, gap(ys[j] - p.bt / 2, ys[j] + p.bt / 2, postX, postX + p.ps));
     }
-    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, fb: fb, bs: bs, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
+    return { n: n, c: c, xs: xs, ds: ds, fs: fs, mc: mc, ex: ex, dp: dp, bars: bars, jl: jl, rim: rim, nog: nog, fb: fb, bs: bs, s: s, ys: ys, postX: postX, nearJ: nearJ, nearB: nearB, between: between };
   }
   var m = calc(P), m2 = calc(P2);
   /* off: distance down the top view; drop: how far it sits below section 1; rise: height of its step face */
@@ -311,8 +333,6 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
     return { pts: pts, top: top, throat: throat, run: run, foot: foot, c: c, xs: xs };
   })();
 
-  /* PVC pipe under the deck, measured from the right edge: down turn mm, across to r1, then down the rest of the deck */
-  var PV = { d: 90, r0: 115, turn: 600, r1: 1020 };
   var PVG = (function () {
     var xa = P.W - PV.r0, xb = P.W - PV.r1, h = PV.d / 2;
     var pts = [[xa, 0], [xa, PV.turn], [xb, PV.turn], [xb, TOTAL]];
@@ -345,24 +365,30 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       (label ? '<text x="' + (x - 7) + '" y="' + ((y1 + y2) / 2) + '" text-anchor="end" dominant-baseline="central">' + label + '</text>' : '') + '</g>';
   }
 
+  /* 'joists 1 and 2' or 'joists 1 to 3' for the joists that end at the edge joist */
+  function rimJoists(r) { return 'joists 1 ' + (r.k === 2 ? 'and' : 'to') + ' ' + r.k; }
   function secName(si) { return S[si].name + ': '; }
   function joistLabel(si, i) {
     var p = S[si].p, mm = S[si].m;
+    if (mm.rim && i === mm.n + 2) return secName(si) + 'Edge joist along the right edge, ' + fmt(p.d) + ' x ' + fmt(p.t) + ' mm at joist level, ' + fmt(mm.rim.y1 - mm.rim.y0) + ' mm long, from the top to joist ' + (mm.rim.k + 1) + '. ' + rimJoists(mm.rim).replace('j', 'J') + ' end against it after cantilevering ' + fmt(p.W - mm.rim.cx) + ' mm past the corner bearer over the pipe; its lower end sits on the right bearer';
+    if (mm.rim && i > mm.n + 2) { var g = mm.nog[i - mm.n - 3]; return secName(si) + 'Noggin ' + (i - mm.n - 2) + ' of ' + mm.nog.length + ', ' + fmt(p.d) + ' x ' + fmt(p.t) + ' mm: ' + fmt(g.y1 - g.y0) + ' mm long between joists, ' + fmt(g.y0) + ' to ' + fmt(g.y1) + ' mm from the top, over the pipe centreline'; }
     if (i > mm.n) return secName(si) + 'Joist ' + mm.ex.name + ' (short joist beside the post): centre ' + fmt(mm.ex.y) + ' mm from the top of the section, ' + fmt(mm.ex.x1 - mm.ex.x0) + ' mm long, from the central bearer to the right edge, ' + fmt(p.pg) + ' mm clear of the post';
     var tags = [];
     if (i === 0 || i === mm.n) tags.push('end joist');
     if (mm.ds[i]) tags.push('double, 2 x ' + fmt(p.t) + ' mm side by side');
     var end = tags.length ? ' (' + tags.join(', ') + ')' : '';
-    return secName(si) + 'Joist ' + (i + 1) + ' of ' + (mm.n + 1) + end + ': centre ' + fmt(mm.xs[i]) + ' mm from the top of the section, ' + fmt(p.W) + ' mm long' + ', sitting on ' + p.nb + ' bearers';
+    var sh = mm.jl[i] < p.W;
+    return secName(si) + 'Joist ' + (i + 1) + ' of ' + (mm.n + 1) + end + ': centre ' + fmt(mm.xs[i]) + ' mm from the top of the section, ' + fmt(mm.jl[i]) + ' mm long' + (sh ? ', sitting on the left, middle and corner bearers and cantilevering over the pipe to the edge joist' : ', sitting on ' + p.nb + ' bearers');
   }
   function bearerLabel(si, j) {
-    var p = S[si].p, mm = S[si].m;
-    var name = j === 0 ? 'left edge' : (j === p.nb - 1 ? 'right edge' : 'middle');
-    return secName(si) + 'Bearer ' + (j + 1) + ' of ' + p.nb + ' (' + name + '): centre ' + fmt(mm.ys[j]) + ' mm from the left edge, ' + fmt(p.L) + ' mm long, ' + fmt(p.bd) + ' x ' + fmt(p.bt) + ' mm on edge (assumed)';
+    var p = S[si].p, b = S[si].m.bars[j];
+    var name = b.corner ? 'Corner bearer, left of the pipe' : 'Bearer ' + (b.j + 1) + ' of ' + p.nb + ' (' + (b.j === 0 ? 'left edge' : (b.j === p.nb - 1 ? 'right edge' : 'middle')) + (b.part ? ', ' + b.part : '') + ')';
+    var span = b.y1 - b.y0 < p.L ? ', from ' + fmt(b.y0) + ' to ' + fmt(b.y1) + ' mm from the top of the section' : '';
+    return secName(si) + name + ': centre ' + fmt(b.x) + ' mm from the left edge, ' + fmt(b.y1 - b.y0) + ' mm long' + span + ', ' + fmt(p.bd) + ' x ' + fmt(p.bt) + ' mm on edge (assumed)';
   }
   function dpostLabel(si, q) {
     var p = S[si].p, mm = S[si].m, d = mm.dp[q];
-    return secName(si) + 'Deck post ' + (q + 1) + ' of ' + mm.dp.length + ': ' + fmt(p.dps) + ' x ' + fmt(p.dps) + ' mm (assumed) under bearer ' + (d.j + 1) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top of the section, ' + fmt(p.dpl) + ' mm long (assumed). Footing is not set yet';
+    return secName(si) + 'Deck post ' + (q + 1) + ' of ' + mm.dp.length + ': ' + fmt(p.dps) + ' x ' + fmt(p.dps) + ' mm (assumed) under ' + (d.j === p.nb ? 'the corner bearer' : 'bearer ' + (d.j + 1)) + ', centre ' + fmt(d.x) + ' mm from the left edge and ' + fmt(d.y) + ' mm from the top of the section, ' + fmt(p.dpl) + ' mm long (assumed). Footing is not set yet';
   }
   function stringerLabel(i) {
     return 'Stringer ' + (i + 1) + ' of ' + ST.ns + ': centre ' + fmt(SG.xs[i]) + ' mm from the left edge, cut from ' + fmt(ST.sd) + ' x ' + fmt(ST.t) + ' mm H3 with about ' + fmt(Math.round(SG.throat)) + ' mm left under each notch. It runs from the ledger at the end of section 2 down to the footing';
@@ -447,11 +473,10 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       }
 
       if (showB && !sc.step) {
-        for (j = 0; j < p.nb; j++) {
-          var bx = OX + (mm.ys[j] - p.bt / 2) * K;
+        mm.bars.forEach(function (b, j) {
           o += '<g class="bearer' + isOn('b', si, j) + '" data-s="' + si + '" data-j="' + j + '" tabindex="0" role="img" aria-label="' + bearerLabel(si, j) + '"><title>' + bearerLabel(si, j) + '</title>' +
-            '<rect x="' + r1(bx) + '" y="' + r1(oy) + '" width="' + r1(p.bt * K) + '" height="' + r1(h) + '"/></g>';
-        }
+            '<rect x="' + r1(OX + (b.x - p.bt / 2) * K) + '" y="' + r1(oy + b.y0 * K) + '" width="' + r1(p.bt * K) + '" height="' + r1((b.y1 - b.y0) * K) + '"/></g>';
+        });
         o += '<g class="bearer' + isOn('b', si) + '" data-s="' + si + '" data-side="1" role="img" aria-label="' + sc.name + ' bearer seen from the side, ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long"><title>' + sc.name + ' bearer seen from the side: ' + fmt(p.bd) + ' mm deep, ' + fmt(p.L) + ' mm long</title>' +
           '<rect x="' + r1(sx + dpx) + '" y="' + r1(oy) + '" width="' + r1(bdpx) + '" height="' + r1(h) + '"/></g>';
       }
@@ -460,9 +485,9 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
         for (i = 0; i <= mm.n; i++) {
           var jy = oy + (mm.xs[i] - p.t / 2) * K;
           o += '<g class="joist' + isOn('j', si, i) + '" data-s="' + si + '" data-i="' + i + '" tabindex="0" role="img" aria-label="' + joistLabel(si, i) + '"><title>' + joistLabel(si, i) + '</title>' +
-            '<rect x="' + OX + '" y="' + r1(jy) + '" width="' + r1(w) + '" height="' + r1(tpx) + '"/>' +
+            '<rect x="' + OX + '" y="' + r1(jy) + '" width="' + r1(mm.jl[i] * K) + '" height="' + r1(tpx) + '"/>' +
             '<rect x="' + r1(sx) + '" y="' + r1(jy) + '" width="' + r1(dpx) + '" height="' + r1(tpx) + '"/>' +
-            (mm.ds[i] ? '<rect x="' + OX + '" y="' + r1(jy + mm.ds[i] * K) + '" width="' + r1(w) + '" height="' + r1(tpx) + '"/>' +
+            (mm.ds[i] ? '<rect x="' + OX + '" y="' + r1(jy + mm.ds[i] * K) + '" width="' + r1(mm.jl[i] * K) + '" height="' + r1(tpx) + '"/>' +
             '<rect x="' + r1(sx) + '" y="' + r1(jy + mm.ds[i] * K) + '" width="' + r1(dpx) + '" height="' + r1(tpx) + '"/>' : '') + '</g>';
           o += '<text class="num" x="' + r1(OX + w + 10) + '" y="' + r1(oy + mm.xs[i] * K) + '" dominant-baseline="central">' + (i + 1) + (mm.ds[i] ? ' x2' : '') + '</text>';
         }
@@ -472,6 +497,17 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
             '<rect x="' + r1(OX + mm.ex.x0 * K) + '" y="' + r1(ey) + '" width="' + r1((mm.ex.x1 - mm.ex.x0) * K) + '" height="' + r1(tpx) + '"/>' +
             '<rect x="' + r1(sx) + '" y="' + r1(ey) + '" width="' + r1(dpx) + '" height="' + r1(tpx) + '"/></g>';
           o += '<text class="num" x="' + r1(OX + w + 10) + '" y="' + r1(oy + mm.ex.y * K) + '" dominant-baseline="central">' + mm.ex.name + '</text>';
+        }
+        /* edge joist and noggins at the pipe corner; the edge joist also shows along its length in the side view */
+        if (mm.rim) {
+          var rb = mm.rim, ri = mm.n + 2;
+          o += '<g class="joist' + isOn('j', si, ri) + '" data-s="' + si + '" data-i="' + ri + '" tabindex="0" role="img" aria-label="' + joistLabel(si, ri) + '"><title>' + joistLabel(si, ri) + '</title>' +
+            '<rect x="' + r1(OX + rb.x0 * K) + '" y="' + r1(oy + rb.y0 * K) + '" width="' + r1(tpx) + '" height="' + r1((rb.y1 - rb.y0) * K) + '"/>' +
+            '<rect x="' + r1(sx) + '" y="' + r1(oy + rb.y0 * K) + '" width="' + r1(dpx) + '" height="' + r1((rb.y1 - rb.y0) * K) + '"/></g>';
+          mm.nog.forEach(function (g, k) {
+            o += '<g class="joist' + isOn('j', si, ri + 1 + k) + '" data-s="' + si + '" data-i="' + (ri + 1 + k) + '" tabindex="0" role="img" aria-label="' + joistLabel(si, ri + 1 + k) + '"><title>' + joistLabel(si, ri + 1 + k) + '</title>' +
+              '<rect x="' + r1(OX + (g.x - p.t / 2) * K) + '" y="' + r1(oy + g.y0 * K) + '" width="' + r1(tpx) + '" height="' + r1((g.y1 - g.y0) * K) + '"/></g>';
+          });
         }
         for (i = 1; i < mm.fs.length; i++) {
           if (mm.fs[i] - mm.fs[i - 1] > p.t * 1.5) o += dimV(OX - 26, r1(oy + mm.fs[i - 1] * K), r1(oy + mm.fs[i] * K), fmt(mm.fs[i] - mm.fs[i - 1]));
@@ -578,15 +614,15 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
     var postOk = m.nearJ > 0 && m.nearB > 0;
     var cut = m.fb[m.fb.length - 1].w;
     $('chips').innerHTML =
-      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, each ' + fmt(P.W) + ' mm long. ' + S.map(function (sc) { return sc.p.dbl.length && !sc.step ? sc.name + ' has joist ' + sc.p.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled. ' : ''; }).join('') + 'Section 1 also has short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm</span></div>' +
+      '<div class="chip"><span class="k">Joists</span><span class="v">' + (m.n + 1) + ' + ' + (m2.n + 1) + '</span><span class="s">' + fmt(P.t) + ' x ' + fmt(P.d) + ' mm, ' + fmt(P.W) + ' mm long unless noted. ' + S.map(function (sc) { return sc.p.dbl.length && !sc.step ? sc.name + ' has joist ' + sc.p.dbl.map(function (k) { return k + 1; }).join(', ') + ' doubled. ' : ''; }).join('') + 'Section 1 also has short joist ' + m.ex.name + ' at ' + fmt(m.ex.x1 - m.ex.x0) + ' mm' + (m.rim ? ', and at the pipe corner ' + rimJoists(m.rim) + ' stop at ' + fmt(m.jl[0]) + ' mm against the ' + fmt(m.rim.y1 - m.rim.y0) + ' mm edge joist, with ' + m.nog.length + ' noggins' : '') + '</span></div>' +
       '<div class="chip"><span class="k">Max joist centres</span><span class="v">' + fmt(mc) + '<small>mm</small></span><span class="s">section 1 up to ' + fmt(m.mc) + ' mm, section 2 ' + fmt(m2.mc) + ' mm</span>' +
         '<span class="pill ' + (centresOk ? 'ok' : 'warn') + '">' + (centresOk ? 'Within ' + fmt(P.maxC) + ' mm max' : 'Over ' + fmt(P.maxC) + ' mm max') + '</span></div>' +
-      '<div class="chip"><span class="k">Bearers</span><span class="v">' + P.nb + ' + ' + P2.nb + '</span><span class="s">' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm (assumed), ' + fmt(P.L) + ' and ' + fmt(P2.L) + ' mm long</span></div>' +
+      '<div class="chip"><span class="k">Bearers</span><span class="v">' + m.bars.length + ' + ' + m2.bars.length + '</span><span class="s">' + fmt(P.bd) + ' x ' + fmt(P.bt) + ' mm (assumed). Section 1: ' + m.bars.map(function (b) { return fmt(b.y1 - b.y0); }).join(', ') + ' mm' + (m.rim ? ', split around the pipe with a corner bearer left of it' : '') + '. Section 2: ' + m2.bars.map(function (b) { return fmt(b.y1 - b.y0); }).join(', ') + ' mm</span></div>' +
       '<div class="chip"><span class="k">Joist span</span><span class="v">' + fmt(m.s) + '<small>mm</small></span><span class="s">between bearer centres, both sections</span>' +
         '<span class="pill ' + (spanOk ? 'ok' : 'warn') + '">' + (spanOk ? 'Within the ~1,000 mm guide' : 'Over the ~1,000 mm guide') + '</span></div>' +
       '<div class="chip"><span class="k">Structural post</span><span class="v">' + fmt(P.ps) + ' x ' + fmt(P.ps) + '<small>mm</small></span><span class="s">nearest joist ' + fmt(m.nearJ) + ' mm, nearest bearer ' + fmt(m.nearB) + ' mm</span>' +
         '<span class="pill ' + (postOk ? 'ok' : 'warn') + '">' + (postOk ? 'Clear of all joists and bearers' : 'Touches a joist or bearer') + '</span></div>' +
-      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' and ' + P2.npp + ' per bearer, ' + m.bs.map(fmt).join(' and ') + ' mm centres in section 1, ' + m2.bs.map(fmt).join(' and ') + ' mm in section 2. Section 1\'s end posts and section 2\'s top posts are set back ' + fmt(P.pe) + ' and ' + fmt(P2.pf) + ' mm</span></div>' +
+      '<div class="chip"><span class="k">Deck posts</span><span class="v">' + m.dp.length + ' + ' + m2.dp.length + '</span><span class="s">' + fmt(P.dps) + ' x ' + fmt(P.dps) + ' mm (assumed), ' + P.npp + ' and ' + P2.npp + ' per bearer' + (m.dp.length > P.nb * P.npp ? ', plus ' + (m.dp.length - P.nb * P.npp) + ' at the pipe corner in section 1' : '') + ', ' + m.bs.map(fmt).join(' and ') + ' mm centres in section 1, ' + m2.bs.map(fmt).join(' and ') + ' mm in section 2. Section 1\'s end posts and section 2\'s top posts are set back ' + fmt(P.pe) + ' and ' + fmt(P2.pf) + ' mm</span></div>' +
       '<div class="chip"><span class="k">PVC pipe</span><span class="v">' + fmt(PV.d) + '<small>mm</small></span><span class="s">' + fmt(PV.r0) + ' mm from the right edge, turning at ' + fmt(PV.turn) + ' mm to run ' + fmt(PV.r1) + ' mm from the right edge. Nearest deck post ' + fmt(PVG.nearD.g) + ' mm, nearest stringer ' + fmt(PVG.nearT) + ' mm, in plan</span>' +
         '<span class="pill ' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'ok' : 'warn') + '">' + (PVG.nearD.g > 0 && PVG.nearT > 0 ? 'Clear of all posts and stringers' : 'Passes under a deck post or stringer') + '</span></div>' +
       '<div class="chip"><span class="k">Floorboards</span><span class="v">' + m.fb.length + ' + ' + m2.fb.length + '</span><span class="s">' + fmt(P.bw) + ' x ' + fmt(P.bh) + ' mm, ' + fmt(P.bg) + ' mm gaps, ' + fmt(boardLen(0)) + ' and ' + fmt(boardLen(1)) + ' mm long' + (cut < P.bw ? ', last board cut to ' + fmt(cut) + ' mm' : '') + '</span></div>' +
@@ -595,7 +631,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
         '<span class="pill ' + (SG.c <= ST.maxC ? 'ok' : 'warn') + '">' + (SG.c <= P.maxC ? 'Within ' + fmt(P.maxC) + ' mm max' : SG.c <= ST.maxC ? fmt(Math.round(SG.c - P.maxC)) + ' mm over ' + fmt(P.maxC) + ' mm, accepted' : 'Over ' + fmt(ST.maxC) + ' mm max') + '</span></div>' +
       '<div class="chip"><span class="k">Step face boards</span><span class="v">' + S.length * faceBoards(S[0]).length + '</span><span class="s">' + faceBoards(S[0]).map(function (b) { return fmt(b.w); }).join(' and ') + ' mm ' + (faceBoards(S[0]).length === 1 ? 'board' : 'boards') + ' on each of the ' + S.length + ' step faces, tucked under the board above, which overhangs by ' + fmt(P.bh) + ' mm. Sections 1 and 2 each end in one edge board laid across</span></div>' +
       '<div class="chip"><span class="k">Total drop</span><span class="v">' + fmt(GROUND) + '<small>mm</small></span><span class="s">' + S.length + ' falls of ' + fmt(FALL) + ' mm from section 1 to the ground</span></div>';
-    $('lede').textContent = 'Two sections and ' + NSTEPS + ' steps, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(FALL) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers. ' + NSTEPS + ' steps on ' + ST.ns + ' stringers then run down to the ground, each with a ' + fmt(GOING) + ' mm going and a ' + fmt(FALL) + ' mm fall, for a total drop of ' + fmt(GROUND) + ' mm.';
+    $('lede').textContent = 'Two sections and ' + NSTEPS + ' steps, ' + fmt(P.W) + ' mm wide. Section 1 is ' + fmt(P.L) + ' mm long with ' + (m.n + 1) + ' joists at up to ' + fmt(m.mc) + ' mm centres; its ' + fmt(P.ps) + ' x ' + fmt(P.ps) + ' mm structural post stands between ' + m.between + ', each ' + fmt(P.pg) + ' mm clear of it. Section 2 steps down ' + fmt(FALL) + ' mm and is ' + fmt(P2.L) + ' mm long with ' + (m2.n + 1) + ' joists at ' + fmt(m2.mc) + ' mm centres. Each section sits on ' + P.nb + ' bearers' + (m.rim ? '; over the pipe at the top right corner the bearers stop short of it, a corner bearer sits to its left and ' + rimJoists(m.rim) + ' cantilever to an edge joist' : '') + '. ' + NSTEPS + ' steps on ' + ST.ns + ' stringers then run down to the ground, each with a ' + fmt(GOING) + ' mm going and a ' + fmt(FALL) + ' mm fall, for a total drop of ' + fmt(GROUND) + ' mm.';
   }
 
   function attr(g, name) { return parseInt(g.getAttribute(name), 10); }
@@ -611,7 +647,7 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       g.classList.toggle('on', !!sel && sel.k === 'p');
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
-      var hit = g.hasAttribute('data-r') ? sel && sel.i % S[sel.s].p.npp === attr(g, 'data-r') : sel && sel.i === attr(g, 'data-q');
+      var hit = g.hasAttribute('data-r') ? sel && sel.i === attr(g, 'data-r') : sel && sel.i === attr(g, 'data-q');
       g.classList.toggle('on', !!sel && sel.k === 'd' && attr(g, 'data-s') === sel.s && !!hit);
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .pipe'), function (g) {
@@ -632,6 +668,8 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
     g.addEventListener('click', on);
   }
 
+  /* the side view looks from the right edge, so its bearer is the last piece on the right-hand line */
+  function sideBar(s) { var b = S[s].m.bars, k; for (k = b.length - 1; k > 0; k--) if (b[k].j === S[s].p.nb - 1) return k; return 0; }
   function wire() {
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .pipe'), function (g) {
       bind(g, function () { return { k: 'v', i: 0, s: 0 }; });
@@ -645,14 +683,14 @@ svg .pipe.on .pf, svg .pipe:hover .pf { stroke: var(--pipe-hi); }
       bind(g, function () { return { k: 'j', i: i, s: s }; });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .bearer'), function (g) {
-      var i = g.hasAttribute('data-side') ? P.nb - 1 : attr(g, 'data-j'), s = attr(g, 'data-s');
+      var s = attr(g, 'data-s'), i = g.hasAttribute('data-side') ? sideBar(s) : attr(g, 'data-j');
       bind(g, function () { return { k: 'b', i: i, s: s }; });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .post'), function (g) {
       bind(g, function () { return { k: 'p', i: 0, s: 0 }; });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#sheet .dpost'), function (g) {
-      var s = attr(g, 'data-s'), i = g.hasAttribute('data-r') ? (P.nb - 1) * S[s].p.npp + attr(g, 'data-r') : attr(g, 'data-q');
+      var s = attr(g, 'data-s'), i = g.hasAttribute('data-r') ? attr(g, 'data-r') : attr(g, 'data-q');
       bind(g, function () { return { k: 'd', i: i, s: s }; });
     });
   }
